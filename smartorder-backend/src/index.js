@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const productRoutes = require('./routes/productRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 // Cargar variables de entorno
 dotenv.config();
@@ -20,6 +21,8 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/products', productRoutes);
+
+app.use('/api/users', userRoutes);
 
 // Servidor escuchando
 const PORT = process.env.PORT || 3000;
