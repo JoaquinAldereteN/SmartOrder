@@ -58,9 +58,30 @@ const updateProduct = async (req, res) => {
     }
 };
 
+// Buscar productos por nombre
+const getProductsByName = async (req, res) => {
+  try {
+    const { name } = req.query;
+
+    if (!name) {
+      return res.status(400).json({ message: "Se requiere el parámetro 'name'" });
+    }
+
+    // Búsqueda insensible a mayúsculas/minúsculas y parcial
+    const products = await Product.find({
+      name: { $regex: name, $options: 'i' }
+    });
+
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ message: "Error al buscar productos", error });
+  }
+};
+
 module.exports = {
   getAllProducts,
   createProduct,
   deleteProduct,
-  updateProduct
+  updateProduct,
+  getProductsByName
 };

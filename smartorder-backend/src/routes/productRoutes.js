@@ -4,7 +4,8 @@ const {
   getAllProducts,
   createProduct,
   deleteProduct,
-  updateProduct
+  updateProduct,
+  getProductsByName
 } = require('../controllers/productController');
 
 // Ruta para obtener todos los productos
@@ -18,6 +19,9 @@ router.delete('/:id', deleteProduct);
 
 // Ruta para actualizar un producto por ID
 router.put('/:id', updateProduct);
+
+// Ruta para buscar un producto por su nombre
+router.get('/search', getProductsByName);
 
 
 module.exports = router;
