@@ -24,6 +24,8 @@ app.use('/api/products', productRoutes);
 
 app.use('/api/users', userRoutes);
 
+app.use('/api/orders', require('./routes/orderRoutes'));
+
 // Servidor escuchando
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

@@ -1,27 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const {
-  getAllProducts,
   createProduct,
-  deleteProduct,
+  getAllProducts,
+  getProductsByName,
   updateProduct,
-  getProductsByName
+  deleteProduct,
 } = require('../controllers/productController');
 
-// Ruta para obtener todos los productos
-router.get('/', getAllProducts);
+const { protect, authorizeRoles } = require('../middleware/authMiddleware');
 
-// Ruta para crear un producto
-router.post('/', createProduct);
-
-// Ruta para eliminar un producto por ID
-router.delete('/:id', deleteProduct);
-
-// Ruta para actualizar un producto por ID
-router.put('/:id', updateProduct);
-
-// Ruta para buscar un producto por su nombre
-router.get('/search', getProductsByName);
-
+// Proteger todas las rutas
+router.post('/', protect, authorizeRoles('admin'), createProduct);
+router.get('/', protect, getAllProducts); // accesible a usuarios logueados
+router.get('/search', protect, getProductsByName); // accesible a usuarios logueados
+router.put('/:id', protect, authorizeRoles('admin'), updateProduct);
+router.delete('/:id', protect, authorizeRoles('admin'), deleteProduct);
 
 module.exports = router;
