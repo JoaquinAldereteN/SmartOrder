@@ -13,7 +13,7 @@ const productSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    enum: ['Comida', 'Bebida', 'Postre'],
+    enum: ['Comida', 'Bebida'],
     required: [true, 'La categoria es obligatoria'],
   },
   available: {
