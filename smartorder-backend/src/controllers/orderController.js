@@ -70,10 +70,37 @@ const deleteOrder = async (req, res) => {
     }
   };
 
+  // Actualizar estado de pedido
+  const updateOrderStatus = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+  
+      // Validar estados permitidos
+      const allowedStatuses = ['pendiente', 'en preparación', 'listo', 'entregado'];
+      if (!allowedStatuses.includes(status)) {
+        return res.status(400).json({ message: 'Estado inválido' });
+      }
+  
+      const order = await Order.findById(id);
+      if (!order) {
+        return res.status(404).json({ message: 'Pedido no encontrado' });
+      }
+  
+      order.status = status;
+      await order.save();
+  
+      res.json({ message: 'Estado actualizado correctamente', order });
+    } catch (error) {
+      res.status(500).json({ message: 'Error al actualizar el estado', error });
+    }
+  };
+
 module.exports = {
   createOrder,
   getOrders,
   getOrderById,
   updateOrder,
-  deleteOrder
+  deleteOrder,
+  updateOrderStatus
 };
