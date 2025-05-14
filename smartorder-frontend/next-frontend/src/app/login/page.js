@@ -1,47 +1,80 @@
 'use client';
-
 import { useState } from 'react';
+import Image from 'next/image';
+import { LockClosedIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    console.log('Usuario:', username);
+    console.log('Contraseña:', password);
+  };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
-      <div className="w-full max-w-sm bg-white p-8 rounded-2xl shadow-lg">
-        <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">SmartOrder</h1>
+    <div className="min-h-screen bg-black flex items-center justify-center px-4">
+      <div className="w-full max-w-sm bg-black text-white flex flex-col items-center p-8 rounded-lg">
+        <div className="mb-6">
+          <Image
+            src="/logo.png"
+            alt="SmartOrder Logo"
+            width={225}
+            height={225}
+            className="rounded-full object-contain"
+            priority
+          />
+        </div>
+        <h1 className="text-2xl font-bold mb-6 text-center">SmartOrder</h1>
 
-        <form className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
-            <input
-              type="text"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Ingrese su usuario"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-          </div>
+        <form
+          onSubmit={handleLogin}
+          className="w-full flex flex-col gap-4"
+        >
+          <input
+            type="text"
+            placeholder="Nombre de usuario"
+            className="bg-gray-800 text-white p-3 rounded-md outline-none placeholder-gray-400 focus:ring-2 focus:ring-blue-600"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+          <div className="relative">
             <input
-              type="password"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Ingrese su contraseña"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Contraseña"
+              className="bg-gray-800 text-white p-3 pr-12 rounded-md w-full outline-none placeholder-gray-400 focus:ring-2 focus:ring-blue-600"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
+
+            {/* Botón mostrar/ocultar */}
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-200"
+              aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+            >
+              {showPassword ? (
+                <EyeSlashIcon className="w-5 h-5" />
+              ) : (
+                <EyeIcon className="w-5 h-5" />
+              )}
+            </button>
           </div>
 
           <button
             type="submit"
-            className="w-full bg-gray-800 text-white py-2 rounded-lg hover:bg-gray-700 transition"
+            className="bg-[#1E1E8F] hover:bg-[#151572] transition-colors text-white py-3 rounded-md font-semibold"
           >
-            Ingresar
+            Iniciar Sesión
           </button>
         </form>
       </div>
-    </main>
+    </div>
   );
 }
