@@ -15,48 +15,55 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center px-4">
-      <div className="w-full max-w-sm bg-black text-white flex flex-col items-center p-8 rounded-lg">
-        <div className="mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 flex items-center justify-center px-4">
+      <div className="w-full max-w-md bg-[#111] text-white rounded-2xl shadow-lg p-8 space-y-6">
+        
+        {/* Logo y título */}
+        <div className="flex flex-col items-center">
           <Image
             src="/logo.png"
             alt="SmartOrder Logo"
-            width={225}
-            height={225}
+            width={120}
+            height={120}
             className="rounded-full object-contain"
             priority
           />
+          <h1 className="text-3xl font-bold mt-4 tracking-wide text-center">SmartOrder</h1>
+          <p className="text-sm text-gray-400 mt-1 text-center">Acceso al sistema</p>
         </div>
-        <h1 className="text-2xl font-bold mb-6 text-center">SmartOrder</h1>
 
-        <form
-          onSubmit={handleLogin}
-          className="w-full flex flex-col gap-4"
-        >
-          <input
-            type="text"
-            placeholder="Nombre de usuario"
-            className="bg-gray-800 text-white p-3 rounded-md outline-none placeholder-gray-400 focus:ring-2 focus:ring-blue-600"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-
-          <div className="relative">
+        {/* Formulario */}
+        <form onSubmit={handleLogin} className="space-y-5">
+          {/* Usuario */}
+          <div>
+            <label htmlFor="username" className="text-sm font-medium text-gray-300">Nombre de usuario</label>
             <input
+              id="username"
+              type="text"
+              placeholder="Ingrese su usuario"
+              className="mt-1 w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-700 focus:border-blue-600 focus:ring-2 focus:ring-blue-600 focus:outline-none transition"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
+
+          {/* Contraseña */}
+          <div className="relative">
+            <label htmlFor="password" className="text-sm font-medium text-gray-300">Contraseña</label>
+            <input
+              id="password"
               type={showPassword ? 'text' : 'password'}
-              placeholder="Contraseña"
-              className="bg-gray-800 text-white p-3 pr-12 rounded-md w-full outline-none placeholder-gray-400 focus:ring-2 focus:ring-blue-600"
+              placeholder="Ingrese su contraseña"
+              className="mt-1 w-full p-3 pr-12 rounded-lg bg-gray-800 text-white border border-gray-700 focus:border-blue-600 focus:ring-2 focus:ring-blue-600 focus:outline-none transition"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-
-            {/* Botón mostrar/ocultar */}
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-200"
+              className="absolute right-3 bottom-3 text-gray-400 hover:text-gray-200 transition"
               aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
             >
               {showPassword ? (
@@ -67,13 +74,19 @@ export default function LoginPage() {
             </button>
           </div>
 
+          {/* Botón iniciar sesión */}
           <button
             type="submit"
-            className="bg-[#1E1E8F] hover:bg-[#151572] transition-colors text-white py-3 rounded-md font-semibold"
+            className="w-full bg-blue-600 hover:bg-blue-700 transition-all duration-300 text-white py-3 rounded-lg font-semibold shadow-md"
           >
             Iniciar Sesión
           </button>
         </form>
+
+        {/* Footer */}
+        <p className="text-xs text-center text-gray-500 mt-6">
+          © {new Date().getFullYear()} SmartOrder. Todos los derechos reservados.
+        </p>
       </div>
     </div>
   );
