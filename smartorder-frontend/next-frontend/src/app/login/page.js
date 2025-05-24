@@ -1,18 +1,65 @@
 'use client';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { LockClosedIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
 
 export default function LoginPage() {
+  const router = useRouter();
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleLogin = (e) => {
+
+const handleLogin = async (e) => {
     e.preventDefault();
-    console.log('Usuario:', username);
-    console.log('Contraseña:', password);
+    setErrorMessage('');
+
+    try {
+      const res = await fetch('http://localhost:3001/api/users/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        setErrorMessage(errorData.message || 'Credenciales inválidas');
+        return;
+      }
+
+      const data = await res.json();
+
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('role', data.user.role);
+
+      // Redirección según el rol
+      switch (data.user.role) {
+        case 'admin':
+          router.push('/admin');
+          break;
+        case 'waiter':
+          router.push('/mozo');
+          break;
+        case 'bar':
+          router.push('/barra');
+          break;
+        case 'kitchen':
+          router.push('/cocina');
+          break;
+        case 'cashier':
+          router.push('/caja');
+          break;
+        default:
+          router.push('/login'); // fallback
+      }
+    } catch (err) {
+      setErrorMessage('Error de conexión. Intenta nuevamente.');
+    }
   };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 flex items-center justify-center px-4">
@@ -73,6 +120,11 @@ export default function LoginPage() {
               )}
             </button>
           </div>
+          
+           {/* Mensaje de error aquí */}
+          {errorMessage && (
+          <p className="text-red-500 text-sm mt-1">{errorMessage}</p>
+          )}
 
           {/* Botón iniciar sesión */}
           <button

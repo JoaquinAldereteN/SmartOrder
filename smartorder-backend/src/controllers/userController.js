@@ -16,14 +16,14 @@ const registerUser = async (req, res) => {
 
   try {
     const existingUser = await User.findOne({ username });
-    if (existingUser) return res.status(400).json({ message: 'User already exists' });
+    if (existingUser) return res.status(400).json({ message: 'Este usuario ya existe' });
 
     const newUser = await User.create({ username, password, role });
     const token = generateToken(newUser);
 
     res.status(201).json({ token, user: { id: newUser._id, username: newUser.username, role: newUser.role } });
   } catch (error) {
-    res.status(500).json({ message: 'Registration failed', error });
+    res.status(500).json({ message: 'Registro fallido', error });
   }
 };
 
@@ -34,7 +34,7 @@ const loginUser = async (req, res) => {
   try {
     const user = await User.findOne({ username });
     if (!user || !(await user.matchPassword(password))) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: 'Credenciales invalidas' });
     }
 
     // Verificar que process.env.JWT_SECRET esté correctamente cargado
@@ -43,7 +43,7 @@ const loginUser = async (req, res) => {
     const token = generateToken(user);
     res.json({ token, user: { id: user._id, username: user.username, role: user.role } });
   } catch (error) {
-    res.status(500).json({ message: 'Login failed', error });
+    res.status(500).json({ message: 'Inicio de sesion fallido', error });
   }
 };
 
