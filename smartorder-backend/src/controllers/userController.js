@@ -55,8 +55,60 @@ const getUserProfile = (req, res) => {
     }
   };
   
+ // Obtener todos los usuarios (solo admin)
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find({});
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener los usuarios', error });
+  }
+};
+
+// Editar un usuario (solo admin)
+const updateUser = async (req, res) => {
+  const { id } = req.params;
+  const { username, password, role } = req.body;
+
+  try {
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+
+    if (username) user.username = username;
+    if (role) user.role = role;
+
+    if (password) {
+      user.password = password; // El `pre('save')` ya se encarga de hashearla
+    }
+
+    const updatedUser = await user.save();
+    res.json({ message: 'Usuario actualizado', user: updatedUser });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al actualizar el usuario', error });
+  }
+};
+
+// Eliminar un usuario (solo admin)
+const deleteUser = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+
+    await user.deleteOne();
+    res.json({ message: 'Usuario eliminado exitosamente' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al eliminar el usuario', error });
+  }
+};
+
+
   module.exports = {
     registerUser,
     loginUser,
     getUserProfile,
+    getAllUsers,
+    updateUser,
+    deleteUser,
   };

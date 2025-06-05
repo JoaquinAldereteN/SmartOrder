@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
-/* Scrollbar minimalista para la app (solo visible al hacer hover, y muy fino) */
-/* Para navegadores modernos */
+
 .menu-scroll::-webkit-scrollbar {
   width: 6px;
   background: transparent;
