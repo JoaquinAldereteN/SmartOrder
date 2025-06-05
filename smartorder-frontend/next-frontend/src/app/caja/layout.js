@@ -9,8 +9,6 @@ import {
   FiPlay,
   FiBarChart2,
 } from "react-icons/fi";
-import CrearProducto from "../admin/products/create_product/page";
-import VerProductos from "../admin/products/product_list/page";
 
 function NavItem({ href, children, icon, onClick }) {
   return (

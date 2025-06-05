@@ -149,7 +149,7 @@ export default function AdminPanel() {
       {/* Contenido principal */}
       <main
         className="flex-1 p-6 md:p-10 rounded-r-lg shadow-inner overflow-auto"
-        style={{ backgroundColor: "#2C2B2B", minHeight: "100vh" }}
+        style={{ backgroundColor: "#111827", minHeight: "100vh" }}
       >
         <h2 className="text-2xl font-semibold mb-6 border-b border-gray-600 pb-2 text-white">
           {seccionActiva === "inicio" ? "Inicio" : formatoTitulo(seccionActiva)}
