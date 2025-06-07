@@ -9,8 +9,8 @@ import {
   FiPlay,
   FiBarChart2,
 } from "react-icons/fi";
-import CrearProducto from "../admin/products/create_product/page";
-import VerProductos from "../admin/products/product_list/page";
+
+
 
 function NavItem({ href, children, icon, onClick }) {
   return (
@@ -81,10 +81,6 @@ export default function CajaPanel() {
       //   return <VerPedidos />;
       // case "cerrar-caja":
       //   return <CerrarCaja />;
-      case "crear-producto":
-        return <CrearProducto />;
-      case "ver-productos":
-        return <VerProductos />;
       // case "iniciar-caja":
       //   return <IniciarCaja />;
       // case "ventas-del-dia":

@@ -79,10 +79,6 @@ export default function CajaPanel() {
       //   return <VerPedidos />;
       // case "cerrar-caja":
       //   return <CerrarCaja />;
-      case "crear-producto":
-        return <CrearProducto />;
-      case "ver-productos":
-        return <VerProductos />;
       // case "iniciar-caja":
       //   return <IniciarCaja />;
       // case "ventas-del-dia":

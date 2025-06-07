@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import MozoMesaSelector from "./MozoMesaSelector";
 import MozoMenu from "./MozoMenu";
 import MozoPedidoActual from "./MozoPedidoActual";
-import MozoLogin from "./MozoLogin";
 
 const mesasMock = [
   { id: 1, sector: "Especiales", numero: "VIP 1", nombre: "VIP 1" },
@@ -25,11 +24,11 @@ const productosMock = [
 ];
 
 export default function MozoPage() {
-  const [autenticado, setAutenticado] = useState(false);
-  const [step, setStep] = useState(0); // 0: mesas, 1: menú, 2: pedido actual
+
+  const [step, setStep] = useState(0); 
   const [mesaSeleccionada, setMesaSeleccionada] = useState(null);
   const [busqueda, setBusqueda] = useState("");
-  const [pedido, setPedido] = useState([]); // [{productoId, cantidad}]
+  const [pedido, setPedido] = useState([]); 
   const [nota, setNota] = useState("");
 
   const getCantidad = id => pedido.find(p => p.productoId === id)?.cantidad || 0;
@@ -45,9 +44,6 @@ export default function MozoPage() {
   };
   const quitarProducto = id => setPedido(prev => prev.filter(p => p.productoId !== id));
 
-  if (!autenticado) {
-    return <MozoLogin onLogin={() => setAutenticado(true)} />;
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a0a0a] to-[#23232d] p-2">
@@ -65,7 +61,7 @@ export default function MozoPage() {
           </button>
         </header>
         <div className="relative w-full flex-1 flex flex-col bg-[#18181c] pt-2 px-0" style={{overflowY: 'auto', minHeight: 0}}>
-          {/* Paso 0: Selección de mesa */}
+            
           <div className={`absolute w-full top-0 left-0 transition-all duration-500 ${step === 0 ? 'opacity-100 translate-x-0 z-10' : 'opacity-0 -translate-x-10 pointer-events-none z-0'}`} style={{minHeight: 'calc(70vh - 2rem)'}}>
             <MozoMesaSelector
               mesas={mesasMock}
@@ -74,7 +70,7 @@ export default function MozoPage() {
               onNext={() => setStep(1)}
             />
           </div>
-          {/* Paso 1: Menú */}
+
           <div className={`absolute w-full top-0 left-0 transition-all duration-500 ${step === 1 ? 'opacity-100 translate-x-0 z-10' : step < 1 ? 'opacity-0 -translate-x-10 pointer-events-none z-0' : 'opacity-0 translate-x-10 pointer-events-none z-0'}`} style={{minHeight: 'calc(70vh - 2rem)'}}>
             <MozoMenu
               productos={productosMock}
@@ -87,7 +83,7 @@ export default function MozoPage() {
               onNext={() => setStep(2)}
             />
           </div>
-          {/* Paso 2: Pedido actual */}
+          
           <div className={`absolute w-full top-0 left-0 transition-all duration-500 ${step === 2 ? 'opacity-100 translate-x-0 z-10' : 'opacity-0 translate-x-10 pointer-events-none z-0'}`} style={{minHeight: 'calc(70vh - 2rem)'}}>
             <MozoPedidoActual
               mesa={mesasMock.find(m => m.id === mesaSeleccionada) || null}

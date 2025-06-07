@@ -12,12 +12,12 @@ export default function MozoMenu({ productos, pedido, setCantidad, getCantidad, 
         @keyframes fadeInUp { from { opacity:0; transform:translateY(32px);} to { opacity:1; transform:none;}}
         @keyframes popIn { from { opacity:0; transform:scale(0.7);} 70% { transform:scale(1.05);} to { opacity:1; transform:scale(1);}}
       `}</style>
-      {/* Header sticky */}
+      
       <div className="flex items-center gap-2 sticky top-0 z-20 bg-[#18181c] py-3 shadow-sm mb-2">
         <button className="text-blue-400 font-bold text-2xl px-2 rounded hover:bg-blue-900/40 focus:outline-none transition" onClick={onBack}>&lt;</button>
         <h3 className="text-3xl font-black flex-1 text-center tracking-wide text-white drop-shadow font-[Montserrat,Inter,sans-serif]">Menú</h3>
       </div>
-      {/* Buscador moderno */}
+      
       <div className="relative mb-2">
         <input
           type="text"
@@ -32,7 +32,7 @@ export default function MozoMenu({ productos, pedido, setCantidad, getCantidad, 
           </svg>
         </span>
       </div>
-      {/* Comida */}
+      
       <div className="mb-4 cat-anim" style={{animationDelay:'0.08s'}}>
         <div className="font-extrabold text-2xl mb-4 text-blue-400 mt-3 tracking-wide drop-shadow">Comida</div>
         {productosComida.length === 0 && <div className="text-gray-500 text-sm mb-4">Sin resultados</div>}
@@ -61,7 +61,7 @@ export default function MozoMenu({ productos, pedido, setCantidad, getCantidad, 
           ))}
         </div>
       </div>
-      {/* Bebida */}
+      
       <div className="mb-4 cat-anim" style={{animationDelay:'0.18s'}}>
         <div className="font-extrabold text-2xl mb-4 text-blue-400 mt-3 tracking-wide drop-shadow">Bebida</div>
         {productosBebida.length === 0 && <div className="text-gray-500 text-sm mb-4">Sin resultados</div>}

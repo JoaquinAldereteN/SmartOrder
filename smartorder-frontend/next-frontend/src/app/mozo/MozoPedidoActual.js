@@ -16,18 +16,18 @@ export default function MozoPedidoActual({ mesa, productos, pedido, nota, setNot
         @keyframes fadeInUp { from { opacity:0; transform:translateY(32px);} to { opacity:1; transform:none;}}
         @keyframes popIn { from { opacity:0; transform:scale(0.7);} 70% { transform:scale(1.05);} to { opacity:1; transform:scale(1);}}
       `}</style>
-      {/* Header sticky con botón volver */}
+      
       <div className="flex items-center gap-2 sticky top-0 z-20 bg-[#18181c] py-3 shadow-sm mb-2">
         <button className="text-blue-400 font-bold text-2xl px-2 rounded hover:bg-blue-900/40 focus:outline-none transition" onClick={onBack}>&lt;</button>
         <h3 className="text-3xl font-black flex-1 text-center tracking-wide text-white drop-shadow font-[Montserrat,Inter,sans-serif]">Pedido Actual</h3>
       </div>
-      {/* Info de mesa */}
+      
       <div className="bg-[#23232d]/90 rounded-2xl p-6 mb-4 shadow-2xl border border-blue-900/40 backdrop-blur-md">
         <div className="text-xs text-gray-400 mb-2">Mesa</div>
         <div className="flex items-center justify-between mb-4">
           <span className="font-semibold text-lg text-blue-300">{mesa?.nombre || "Sin mesa"}</span>
         </div>
-        {/* Productos Comida */}
+        
         <div className="mb-2">
           <div className="pedido-cat-anim font-extrabold text-2xl mb-4 text-blue-400 mt-3 tracking-wide drop-shadow" style={{animationDelay:'0.08s'}}>Comida</div>
           {pedidoComida.length === 0 && <div className="text-gray-500 text-sm mb-4">Sin comidas</div>}
@@ -64,7 +64,7 @@ export default function MozoPedidoActual({ mesa, productos, pedido, nota, setNot
             })}
           </div>
         </div>
-        {/* Productos Bebida */}
+        
         <div className="mb-2">
           <div className="pedido-cat-anim font-extrabold text-2xl mb-4 text-blue-400 mt-3 tracking-wide drop-shadow" style={{animationDelay:'0.17s'}}>Bebida</div>
           {pedidoBebida.length === 0 && <div className="text-gray-500 text-sm mb-4">Sin bebidas</div>}
@@ -101,7 +101,7 @@ export default function MozoPedidoActual({ mesa, productos, pedido, nota, setNot
             })}
           </div>
         </div>
-        {/* Notas */}
+        
         <div className="mt-4">
           <div className="font-semibold text-xs mb-1 text-gray-400">Notas del pedido</div>
           <textarea
@@ -112,7 +112,7 @@ export default function MozoPedidoActual({ mesa, productos, pedido, nota, setNot
             placeholder="Notas para cocina/bar..."
           />
         </div>
-        {/* Total */}
+        
         <div className="flex items-center justify-between mt-6 border-t border-blue-900/30 pt-4">
           <span className="font-bold text-lg text-white">Total a pagar:</span>
           <span className="text-3xl bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent font-extrabold drop-shadow animate-pulse">$ {total}</span>

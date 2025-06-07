@@ -1,7 +1,7 @@
 import React from "react";
 
 export default function MozoMesaSelector({ mesas, mesaSeleccionada, setMesaSeleccionada, onNext }) {
-  // Agrupar mesas por sector
+  
   const sectores = [
     { nombre: "Especiales", mesas: mesas.filter(m => m.sector === "Especiales") },
     { nombre: "Interior", mesas: mesas.filter(m => m.sector === "Interior") },
