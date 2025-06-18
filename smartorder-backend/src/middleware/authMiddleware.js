@@ -5,7 +5,7 @@ const protect = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer')) {
-    return res.status(401).json({ message: 'No token provided' });
+    return res.status(401).json({ message: 'Falta token' });
   }
 
   const token = authHeader.split(' ')[1];
@@ -24,7 +24,7 @@ const protect = async (req, res, next) => {
     next();
   } catch (error) {
     console.error('Error al verificar token:', error);
-    return res.status(401).json({ message: 'Invalid token' });
+    return res.status(401).json({ message: 'Token invalido' });
   }
 };
 

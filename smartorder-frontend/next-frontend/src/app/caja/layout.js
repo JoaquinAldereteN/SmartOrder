@@ -1,16 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import {
-  FiLogOut,
-  FiUsers,
-  FiBox,
-  FiMenu,
-  FiX,
-  FiPlay,
-  FiBarChart2,
-} from "react-icons/fi";
-import CrearProducto from "../admin/products/create_product/page";
-import VerProductos from "../admin/products/product_list/page";
+import { FiLogOut, FiPlay, FiBarChart2, FiUsers, FiMenu, FiX } from "react-icons/fi";
+import CajaBoxPage from "./box/page";
+
 
 function NavItem({ href, children, icon, onClick }) {
   return (
@@ -25,45 +17,10 @@ function NavItem({ href, children, icon, onClick }) {
   );
 }
 
-function DropdownMenu({ title, icon, children }) {
-  const [open, setOpen] = useState(false);
-  const toggleOpen = () => setOpen((prev) => !prev);
-
-  return (
-    <div>
-      <button
-        onClick={toggleOpen}
-        className="w-full flex justify-between items-center px-3 py-2 font-medium hover:bg-gray-700 rounded transition"
-        aria-expanded={open}
-        aria-controls={`dropdown-${title.replace(/\s+/g, "-").toLowerCase()}`}
-      >
-        <span className="flex items-center gap-2 whitespace-nowrap">
-          {icon}
-          {title}
-        </span>
-        <span
-          className={`transform transition-transform ${open ? "rotate-180" : "rotate-0"}`}
-          aria-hidden="true"
-        >
-          ▼
-        </span>
-      </button>
-      {open && (
-        <div
-          id={`dropdown-${title.replace(/\s+/g, "-").toLowerCase()}`}
-          className="mt-2 pl-4 space-y-2"
-        >
-          {children}
-        </div>
-      )}
-    </div>
-  );
-}
-
 const formatoTitulo = (str) =>
   str
     .split("-")
-    .map((palabra) => palabra.charAt(0).toUpperCase() + palabra.slice(1))
+    .map((palabra) => palabra[0].toUpperCase() + palabra.slice(1))
     .join(" ");
 
 export default function CajaPanel() {
@@ -71,24 +28,14 @@ export default function CajaPanel() {
   const [menuAbierto, setMenuAbierto] = useState(false);
 
   useEffect(() => {
-    const titulo = seccionActiva === "inicio" ? "Inicio" : formatoTitulo(seccionActiva);
-    document.title = `Panel Caja - ${titulo}`;
+    const tituloSeccion = seccionActiva === "inicio" ? "Inicio" : formatoTitulo(seccionActiva);
+    document.title = `Panel Caja - ${tituloSeccion}`;
   }, [seccionActiva]);
 
   const renderContenido = () => {
     switch (seccionActiva) {
-      // case "ver-pedidos":
-      //   return <VerPedidos />;
-      // case "cerrar-caja":
-      //   return <CerrarCaja />;
-      case "crear-producto":
-        return <CrearProducto />;
-      case "ver-productos":
-        return <VerProductos />;
-      // case "iniciar-caja":
-      //   return <IniciarCaja />;
-      // case "ventas-del-dia":
-      //   return <VentasDelDia />;
+      case "caja":
+           return <CajaBoxPage />;
       default:
         return <p className="text-white">Selecciona una opción del menú.</p>;
     }
@@ -100,7 +47,8 @@ export default function CajaPanel() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen w-full bg-gray-50 overflow-hidden shadow-2xl relative">
+    <div className="flex min-h-screen w-full bg-gray-50 overflow-hidden shadow-2xl relative">
+      {/* Botón hamburguesa móvil */}
       <button
         onClick={() => setMenuAbierto(true)}
         className="fixed top-4 right-4 z-50 bg-[#161617] p-2 rounded-md md:hidden text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
@@ -109,51 +57,34 @@ export default function CajaPanel() {
         <FiMenu size={24} />
       </button>
 
+      {/* Sidebar (desktop) */}
       <aside className="hidden md:flex md:flex-col md:w-72 bg-[#131416] text-white p-6 flex-shrink-0">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-blue-600">Panel de Caja</h1>
-          <p className="text-sm text-gray-400 mt-1">
-            Gestión de facturación, pagos y pedidos
-          </p>
+          <p className="text-sm text-gray-400 mt-1">Gestión de ventas y caja</p>
         </div>
 
-        <nav className="flex flex-col space-y-4 flex-grow overflow-y-auto" aria-label="Menú principal">
-          <DropdownMenu title="Caja" icon={<FiUsers />}>
-            <button
-              onClick={() => handleSeleccion("ver-pedidos")}
-              className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition"
-            >
-              Ver Pedidos
-            </button>
-            <button
-              onClick={() => handleSeleccion("cerrar-caja")}
-              className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition"
-            >
-              Cerrar Caja
-            </button>
-          </DropdownMenu>
+        <nav className="flex flex-col space-y-4 flex-grow overflow-y-auto">
+          <button
+            onClick={() => handleSeleccion("caja")}
+            className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition flex items-center gap-2"
+          >
+            <FiUsers /> Caja
+          </button>
 
-          <DropdownMenu title="Gestión de productos" icon={<FiBox />}>
-            <button
-              onClick={() => handleSeleccion("crear-producto")}
-              className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition"
-            >
-              Crear Producto
-            </button>
-            <button
-              onClick={() => handleSeleccion("ver-productos")}
-              className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition"
-            >
-              Ver Productos
-            </button>
-          </DropdownMenu>
+          <button
+            onClick={() => handleSeleccion("iniciar-caja")}
+            className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition flex items-center gap-2"
+          >
+            <FiPlay /> Iniciar Caja
+          </button>
 
-          <NavItem href="#" icon={<FiPlay />} onClick={() => handleSeleccion("iniciar-caja")}>
-            Iniciar Caja
-          </NavItem>
-          <NavItem href="#" icon={<FiBarChart2 />} onClick={() => handleSeleccion("ventas-del-dia")}>
-            Ventas del Día
-          </NavItem>
+          <button
+            onClick={() => handleSeleccion("ventas-del-dia")}
+            className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition flex items-center gap-2"
+          >
+            <FiBarChart2 /> Ventas del Día
+          </button>
 
           <NavItem
             href="/logout"
@@ -169,19 +100,14 @@ export default function CajaPanel() {
         </nav>
       </aside>
 
+      {/* Sidebar móvil (drawer) */}
       {menuAbierto && (
         <>
           <div
             className="fixed inset-0 bg-black bg-opacity-50 z-40"
             onClick={() => setMenuAbierto(false)}
-            aria-hidden="true"
           />
-          <aside
-            className="fixed inset-y-0 left-0 w-64 bg-[#131416] text-white p-6 z-50 flex flex-col shadow-lg overflow-y-auto"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Menú de navegación"
-          >
+          <aside className="fixed inset-y-0 left-0 w-64 bg-[#131416] text-white p-6 z-50 flex flex-col shadow-lg overflow-y-auto">
             <div className="mb-8 flex justify-between items-center">
               <h1 className="text-2xl font-bold text-blue-600">Panel de Caja</h1>
               <button
@@ -193,43 +119,27 @@ export default function CajaPanel() {
               </button>
             </div>
 
-            <nav className="flex flex-col space-y-4 flex-grow" aria-label="Menú principal móvil">
-              <DropdownMenu title="Caja" icon={<FiUsers />}>
-                <button
-                  onClick={() => handleSeleccion("ver-pedidos")}
-                  className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition"
-                >
-                  Ver Pedidos
-                </button>
-                <button
-                  onClick={() => handleSeleccion("cerrar-caja")}
-                  className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition"
-                >
-                  Cerrar Caja
-                </button>
-              </DropdownMenu>
+            <nav className="flex flex-col space-y-4 flex-grow">
+              <button
+                onClick={() => handleSeleccion("caja")}
+                className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition flex items-center gap-2"
+              >
+                <FiUsers /> Caja
+              </button>
 
-              <DropdownMenu title="Gestión de productos" icon={<FiBox />}>
-                <button
-                  onClick={() => handleSeleccion("crear-producto")}
-                  className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition"
-                >
-                  Crear Producto
-                </button>
-                <button
-                  onClick={() => handleSeleccion("ver-productos")}
-                  className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition"
-                >
-                  Ver Productos
-                </button>
-              </DropdownMenu>
+              <button
+                onClick={() => handleSeleccion("iniciar-caja")}
+                className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition flex items-center gap-2"
+              >
+                <FiPlay /> Iniciar Caja
+              </button>
 
-              <NavItem href="#" icon={<FiPlay />} onClick={() => handleSeleccion("iniciar-caja")}>
-                Iniciar Caja
-              </NavItem>
-              <NavItem href="#" icon={<FiBarChart2 />} onClick={() => handleSeleccion("ventas-del-dia")}>
-                Ventas del Día
-              </NavItem>
+              <button
+                onClick={() => handleSeleccion("ventas-del-dia")}
+                className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition flex items-center gap-2"
+              >
+                <FiBarChart2 /> Ventas del Día
+              </button>
 
               <NavItem
                 href="/logout"
@@ -247,11 +157,12 @@ export default function CajaPanel() {
         </>
       )}
 
+      {/* Contenido principal */}
       <main
         className="flex-1 p-6 md:p-10 rounded-r-lg shadow-inner overflow-auto"
-        style={{ backgroundColor: "#2C2B2B", minHeight: "100vh" }}
+        style={{ backgroundColor: "#111827", minHeight: "100vh" }}
       >
-        <h2 className="text-2xl font-semibold mb-6 border-b border-gray-600 pb-2 text-white" tabIndex={-1}>
+        <h2 className="text-2xl font-semibold mb-6 border-b border-gray-600 pb-2 text-white">
           {seccionActiva === "inicio" ? "Inicio" : formatoTitulo(seccionActiva)}
         </h2>
         {renderContenido()}

@@ -1,3 +1,3 @@
-export default function CajaPage() {
+export default function CajaHome() {
   return null;
-}
+ }

@@ -1,9 +1,7 @@
-"use client";
+'use client';
 import React, { useState, useEffect } from "react";
-import CrearUsuario from "./users/create_user/page";
-import VerUsuarios from "./users/user_list/page";
-import CrearProducto from "./products/create_product/page";
-import VerProductos from "./products/product_list/page";
+import UsersAdminPage from "./users/page";
+import ProductsAdminPage from "./products/page";
 import { FiLogOut, FiUsers, FiBox, FiMenu, FiX } from "react-icons/fi";
 
 function NavItem({ href, children, icon, onClick }) {
@@ -30,7 +28,6 @@ export default function AdminPanel() {
   const [seccionActiva, setSeccionActiva] = useState("inicio");
   const [menuAbierto, setMenuAbierto] = useState(false);
 
-  // Actualiza el título de la pestaña cada vez que cambia seccionActiva
   useEffect(() => {
     const tituloSeccion = seccionActiva === "inicio" ? "Inicio" : formatoTitulo(seccionActiva);
     document.title = `Panel Administración - ${tituloSeccion}`;
@@ -38,14 +35,10 @@ export default function AdminPanel() {
 
   const renderContenido = () => {
     switch (seccionActiva) {
-      case "crear-usuario":
-        return <CrearUsuario />;
-      case "ver-usuarios":
-        return <VerUsuarios />;
-      case "crear-producto":
-        return <CrearProducto />;
-      case "ver-productos":
-        return <VerProductos />;
+      case "users":
+        return <UsersAdminPage />;
+      case "products":
+        return <ProductsAdminPage />;
       default:
         return <p className="text-white">Selecciona una opción del menú.</p>;
     }
@@ -53,7 +46,7 @@ export default function AdminPanel() {
 
   const handleSeleccion = (seccion) => {
     setSeccionActiva(seccion);
-    setMenuAbierto(false); // cerrar menú al seleccionar opción en móvil
+    setMenuAbierto(false);
   };
 
   return (
@@ -69,42 +62,25 @@ export default function AdminPanel() {
 
       {/* Sidebar fijo en desktop */}
       <aside className="hidden md:flex md:flex-col md:w-72 bg-[#131416] text-white p-6 flex-shrink-0">
-        {/* Título y subtítulo */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-blue-600">Panel de Admin</h1>
           <p className="text-sm text-gray-400 mt-1">Gestión de usuarios y productos</p>
         </div>
 
         <nav className="flex flex-col space-y-4 flex-grow overflow-y-auto">
-          <DropdownMenu title="Gestión de usuarios" icon={<FiUsers />}>
-            <button
-              onClick={() => handleSeleccion("crear-usuario")}
-              className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition"
-            >
-              Crear Usuario
-            </button>
-            <button
-              onClick={() => handleSeleccion("ver-usuarios")}
-              className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition"
-            >
-              Ver Usuarios
-            </button>
-          </DropdownMenu>
+          <button
+            onClick={() => handleSeleccion("users")}
+            className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition flex items-center gap-2"
+          >
+            <FiUsers /> Gestión de Usuarios
+          </button>
 
-          <DropdownMenu title="Gestión de productos" icon={<FiBox />}>
-            <button
-              onClick={() => handleSeleccion("crear-producto")}
-              className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition"
-            >
-              Crear Producto
-            </button>
-            <button
-              onClick={() => handleSeleccion("ver-productos")}
-              className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition"
-            >
-              Ver Productos
-            </button>
-          </DropdownMenu>
+          <button
+            onClick={() => handleSeleccion("products")}
+            className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition flex items-center gap-2"
+          >
+            <FiBox /> Gestión de Productos
+          </button>
 
           <NavItem
             href="/logout"
@@ -123,13 +99,10 @@ export default function AdminPanel() {
       {/* Sidebar móvil como drawer */}
       {menuAbierto && (
         <>
-          {/* Overlay */}
           <div
             className="fixed inset-0 bg-black bg-opacity-50 z-40"
             onClick={() => setMenuAbierto(false)}
           />
-
-          {/* Panel lateral */}
           <aside className="fixed inset-y-0 left-0 w-64 bg-[#131416] text-white p-6 z-50 flex flex-col shadow-lg overflow-y-auto">
             <div className="mb-8 flex justify-between items-center">
               <h1 className="text-2xl font-bold text-blue-600">Panel de Admin</h1>
@@ -143,35 +116,19 @@ export default function AdminPanel() {
             </div>
 
             <nav className="flex flex-col space-y-4 flex-grow">
-              <DropdownMenu title="Gestión de usuarios" icon={<FiUsers />}>
-                <button
-                  onClick={() => handleSeleccion("crear-usuario")}
-                  className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition"
-                >
-                  Crear Usuario
-                </button>
-                <button
-                  onClick={() => handleSeleccion("ver-usuarios")}
-                  className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition"
-                >
-                  Ver Usuarios
-                </button>
-              </DropdownMenu>
+              <button
+                onClick={() => handleSeleccion("users")}
+                className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition flex items-center gap-2"
+              >
+                <FiUsers /> Gestión de Usuarios
+              </button>
 
-              <DropdownMenu title="Gestión de productos" icon={<FiBox />}>
-                <button
-                  onClick={() => handleSeleccion("crear-producto")}
-                  className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition"
-                >
-                  Crear Producto
-                </button>
-                <button
-                  onClick={() => handleSeleccion("ver-productos")}
-                  className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition"
-                >
-                  Ver Productos
-                </button>
-              </DropdownMenu>
+              <button
+                onClick={() => handleSeleccion("products")}
+                className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition flex items-center gap-2"
+              >
+                <FiBox /> Gestión de Productos
+              </button>
 
               <NavItem
                 href="/logout"
@@ -192,37 +149,13 @@ export default function AdminPanel() {
       {/* Contenido principal */}
       <main
         className="flex-1 p-6 md:p-10 rounded-r-lg shadow-inner overflow-auto"
-        style={{ backgroundColor: "#2C2B2B", minHeight: "100vh" }}
+        style={{ backgroundColor: "#111827", minHeight: "100vh" }}
       >
         <h2 className="text-2xl font-semibold mb-6 border-b border-gray-600 pb-2 text-white">
           {seccionActiva === "inicio" ? "Inicio" : formatoTitulo(seccionActiva)}
         </h2>
         {renderContenido()}
       </main>
-    </div>
-  );
-}
-
-function DropdownMenu({ title, icon, children }) {
-  const [open, setOpen] = React.useState(false);
-
-  return (
-    <div>
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-full flex justify-between items-center px-3 py-2 font-medium hover:bg-gray-700 rounded transition"
-      >
-        <span className="flex items-center gap-2 whitespace-nowrap">
-          {icon && icon}
-          {title}
-        </span>
-        <span
-          className={`transform transition-transform ${open ? "rotate-180" : "rotate-0"}`}
-        >
-          ▼
-        </span>
-      </button>
-      {open && <div className="mt-2 pl-4 space-y-2">{children}</div>}
     </div>
   );
 }
