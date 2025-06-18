@@ -19,12 +19,11 @@ export default function VerProductos() {
           Listado de Productos
         </h2>
 
-        {/* Scroll horizontal en móviles */}
-        <div className="overflow-x-auto">
-          <table className="w-full bg-[#1F1F1F] rounded-lg shadow-md table-fixed min-w-[600px]">
+        {/* Sin scroll horizontal */}
+        <div className="overflow-x-hidden">
+          <table className="w-full bg-[#1F1F1F] rounded-lg shadow-md table-fixed">
             <thead>
               <tr className="bg-[#2D2D2D] text-white">
-                {/* Anchos responsivos */}
                 <th className="w-[40%] py-3 px-4 sm:px-8 text-left text-base sm:text-lg break-words">Nombre</th>
                 <th className="w-[15%] py-3 px-4 sm:px-8 text-left text-base sm:text-lg break-words">Precio</th>
                 <th className="w-[25%] py-3 px-4 sm:px-8 text-center text-base sm:text-lg break-words">Categoría</th>

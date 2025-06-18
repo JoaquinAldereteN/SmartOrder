@@ -19,7 +19,7 @@ export default function CrearProducto() {
             id="username"
             name="username"
             className="bg-[#2C2C3D] text-white p-2 sm:p-3 rounded-md border border-gray-600 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 outline-none transition-all duration-300 shadow-sm placeholder:text-gray-400 text-sm sm:text-base"
-            placeholder="Ingrese nombre de usuario"
+            placeholder="Nombre"
             required
           />
         </div>
@@ -39,7 +39,7 @@ export default function CrearProducto() {
             id="price"
             name="price"
             className="bg-[#2C2C3D] text-white p-2 sm:p-3 rounded-md border border-gray-600 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 outline-none transition-all duration-300 shadow-sm placeholder:text-gray-400 text-sm sm:text-base"
-            placeholder="Ingrese contraseña"
+            placeholder="Precio"
             required
           />
         </div>
