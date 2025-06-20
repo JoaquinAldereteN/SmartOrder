@@ -29,7 +29,7 @@ const orderSchema = new mongoose.Schema({
     type: String
   },
   mesa: {
-    type: Number
+    type: String
   }
 }, {
   timestamps: true
