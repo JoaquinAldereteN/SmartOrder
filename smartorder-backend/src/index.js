@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const productRoutes = require('./routes/productRoutes');
 const userRoutes = require('./routes/userRoutes');
+const mesaRoutes = require('./routes/mesaRoutes');
 
 // Cargar variables de entorno
 dotenv.config();
@@ -30,7 +31,10 @@ app.use('/api/products', productRoutes);
 
 app.use('/api/users', userRoutes);
 
+app.use("/api/mesas", mesaRoutes);
+
 app.use('/api/orders', require('./routes/orderRoutes'));
+
 
 // Servidor escuchando
 const PORT = process.env.PORT || 3001;
