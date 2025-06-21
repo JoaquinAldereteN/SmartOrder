@@ -72,20 +72,6 @@ export default function CajaPanel() {
             <FiUsers /> Caja
           </button>
 
-          <button
-            onClick={() => handleSeleccion("iniciar-caja")}
-            className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition flex items-center gap-2"
-          >
-            <FiPlay /> Iniciar Caja
-          </button>
-
-          <button
-            onClick={() => handleSeleccion("ventas-del-dia")}
-            className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition flex items-center gap-2"
-          >
-            <FiBarChart2 /> Ventas del Día
-          </button>
-
           <NavItem
             href="/logout"
             icon={<FiLogOut size={18} />}
@@ -125,20 +111,6 @@ export default function CajaPanel() {
                 className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition flex items-center gap-2"
               >
                 <FiUsers /> Caja
-              </button>
-
-              <button
-                onClick={() => handleSeleccion("iniciar-caja")}
-                className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition flex items-center gap-2"
-              >
-                <FiPlay /> Iniciar Caja
-              </button>
-
-              <button
-                onClick={() => handleSeleccion("ventas-del-dia")}
-                className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition flex items-center gap-2"
-              >
-                <FiBarChart2 /> Ventas del Día
               </button>
 
               <NavItem
