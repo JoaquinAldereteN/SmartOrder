@@ -24,7 +24,8 @@ const getOrders = async (req, res) => {
   try {
     const orders = await Order.find()
       .populate('items.product', 'name price')
-      .populate('user', 'username');
+      .populate('user', 'username')
+      .populate('mesa', 'nombre');
 
     res.json(orders);
   } catch (error) {
@@ -77,7 +78,7 @@ const deleteOrder = async (req, res) => {
       const { status } = req.body;
   
       // Validar estados permitidos
-      const allowedStatuses = ['pendiente', 'en preparación', 'listo', 'entregado'];
+      const allowedStatuses = ['pendiente', 'en preparación', 'listo', 'entregado', 'pagado'];
       if (!allowedStatuses.includes(status)) {
         return res.status(400).json({ message: 'Estado inválido' });
       }

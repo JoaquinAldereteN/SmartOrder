@@ -22,15 +22,18 @@ const orderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pendiente', 'en preparación', 'listo', 'entregado'],
+    enum: ['pendiente', 'en preparación', 'listo', 'entregado', 'pagado'],
     default: 'pendiente'
   },
   notes: {
     type: String
   },
   mesa: {
-    type: String
-  }
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'Mesa',
+  required: true
+}
+
 }, {
   timestamps: true
 });
