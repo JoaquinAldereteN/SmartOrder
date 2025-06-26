@@ -23,7 +23,7 @@ const createOrder = async (req, res) => {
 const getOrders = async (req, res) => {
   try {
     const orders = await Order.find()
-      .populate('items.product', 'name price')
+      .populate('items.product', 'name price category')  // Agregué category acá
       .populate('user', 'username')
       .populate('mesa', 'nombre');
 
@@ -32,6 +32,7 @@ const getOrders = async (req, res) => {
     res.status(500).json({ message: 'Error al obtener los pedidos', error });
   }
 };
+
 
 // Obtener un pedido por ID
 const getOrderById = async (req, res) => {
