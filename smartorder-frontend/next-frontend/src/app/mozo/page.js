@@ -13,6 +13,19 @@ export default function MozoPage() {
   const [pedido, setPedido] = useState([]);
   const [nota, setNota] = useState("");
   const [step, setStep] = useState(0);
+  const [verificandoRol, setVerificandoRol] = useState(true);
+  
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
+  
+    if (!token || (role !== 'waiter' && role !== 'admin')) {
+      window.location.href = '/unauthorized';
+    } else {
+      setVerificandoRol(false);
+    }
+  }, []);
+
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -98,6 +111,17 @@ export default function MozoPage() {
         <h1 className="text-white text-lg md:text-2xl font-semibold">
           Panel del Mozo
         </h1>
+        <button
+          onClick={() => {
+            localStorage.removeItem("token");
+            localStorage.removeItem("role");
+            window.location.href = "/";
+          }}
+          className="text-sm bg-red-600 hover:bg-red-700 transition-colors text-white px-3 py-1 rounded-md"
+          title="Cerrar sesión"
+        >
+          Cerrar sesión
+        </button>
       </header>
 
       <main className="flex-1 p-3 md:p-4 overflow-auto flex justify-center items-start h-full w-full">

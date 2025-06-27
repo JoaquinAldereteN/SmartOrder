@@ -26,6 +26,18 @@ const formatoTitulo = (str) =>
 export default function CajaPanel() {
   const [seccionActiva, setSeccionActiva] = useState("inicio");
   const [menuAbierto, setMenuAbierto] = useState(false);
+  const [verificandoRol, setVerificandoRol] = useState(true);
+
+useEffect(() => {
+  const token = localStorage.getItem('token');
+  const role = localStorage.getItem('role');
+
+  if (!token || (role !== 'cashier' && role !== 'admin')) {
+    window.location.href = '/unauthorized';
+  } else {
+    setVerificandoRol(false);
+  }
+}, []);
 
   useEffect(() => {
     const tituloSeccion = seccionActiva === "inicio" ? "Inicio" : formatoTitulo(seccionActiva);
@@ -73,16 +85,21 @@ export default function CajaPanel() {
           </button>
 
           <NavItem
-            href="/logout"
-            icon={<FiLogOut size={18} />}
-            onClick={(e) => {
-              e.preventDefault();
-              alert("Cerrando sesión...");
-              setMenuAbierto(false);
-            }}
-          >
-            Cerrar Sesión
+          href="/logout"
+          icon={<FiLogOut size={18} />}
+          onClick={(e) => {
+          e.preventDefault();
+          // Limpiar token y rol
+          localStorage.removeItem('token');
+          localStorage.removeItem('role');
+
+          // Redireccionar al login
+          window.location.href = '/login';
+          }}
+>
+          Cerrar Sesión
           </NavItem>
+
         </nav>
       </aside>
 
@@ -113,17 +130,22 @@ export default function CajaPanel() {
                 <FiUsers /> Caja
               </button>
 
-              <NavItem
-                href="/logout"
-                icon={<FiLogOut size={18} />}
-                onClick={(e) => {
-                  e.preventDefault();
-                  alert("Cerrando sesión...");
-                  setMenuAbierto(false);
-                }}
-              >
-                Cerrar Sesión
-              </NavItem>
+            <NavItem
+              href="/logout"
+              icon={<FiLogOut size={18} />}
+              onClick={(e) => {
+                e.preventDefault();
+                // Limpiar token y rol
+                localStorage.removeItem('token');
+                localStorage.removeItem('role');
+
+                // Redireccionar al login
+                window.location.href = '/login';
+              }}
+            >
+              Cerrar Sesión
+            </NavItem>
+
             </nav>
           </aside>
         </>

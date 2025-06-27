@@ -16,6 +16,19 @@ const badgeColor = (estado) => {
 };
 
 export default function CocinaPage() {
+  const [verificandoRol, setVerificandoRol] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    if (!token || (role !== "kitchen" && role !== "admin")) {
+      window.location.href = "/unauthorized";
+    } else {
+      setVerificandoRol(false);
+    }
+  }, []);
+
   const [pedidos, setPedidos] = useState([]);
 
   const fetchPedidos = async () => {
@@ -27,14 +40,11 @@ export default function CocinaPage() {
         },
       });
 
-      console.log("Pedidos recibidos del backend:", response.data);
-
       const pedidosFiltrados = response.data
         .map((pedido) => {
-      const detalleComida = pedido.items
-        .filter(item => item.product?.category?.toLowerCase().trim() === "comida")
-        .map(item => `${item.quantity}x ${item.product?.name}`);
-
+          const detalleComida = pedido.items
+            .filter((item) => item.product?.category?.toLowerCase().trim() === "comida")
+            .map((item) => `${item.quantity}x ${item.product?.name}`);
 
           return {
             id: pedido._id,
@@ -63,8 +73,25 @@ export default function CocinaPage() {
     return () => clearInterval(interval);
   }, []);
 
+  if (verificandoRol) return null;
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    window.location.href = "/login";
+  };
+
   return (
-    <main className="min-h-screen bg-[#18181c] p-8">
+    <main className="min-h-screen bg-[#18181c] p-8 relative">
+      {/* Botón Cerrar Sesión */}
+      <button
+        onClick={handleLogout}
+        className="absolute top-4 right-4 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-3 py-1 rounded shadow"
+        title="Cerrar sesión"
+      >
+        Cerrar sesión
+      </button>
+
       <h1 className="text-white text-xl sm:text-2xl font-semibold mb-8">
         Panel de Cocina
       </h1>
@@ -95,7 +122,7 @@ export default function CocinaPage() {
             </div>
             <div className="mt-1 mb-1">
               <span className="inline-block bg-[#2563eb] text-white px-4 py-1 rounded-2xl font-bold text-sm tracking-wide shadow-sm">
-                Mesa {pedido.mesa}
+                {pedido.mesa}
               </span>
             </div>
             <div className="flex items-center gap-2 text-gray-300 text-sm mt-1">
