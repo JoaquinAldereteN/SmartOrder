@@ -17,6 +17,7 @@ const badgeColor = (estado) => {
 
 export default function CocinaPage() {
   const [verificandoRol, setVerificandoRol] = useState(true);
+  const [pedidos, setPedidos] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -29,15 +30,11 @@ export default function CocinaPage() {
     }
   }, []);
 
-  const [pedidos, setPedidos] = useState([]);
-
   const fetchPedidos = async () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get("http://localhost:3001/api/orders", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       const pedidosFiltrados = response.data
@@ -61,15 +58,38 @@ export default function CocinaPage() {
         })
         .filter((pedido) => pedido.detalle.length > 0);
 
+      const ordenEstado = {
+        "pendiente": 0,
+        "en preparación": 1,
+        "listo": 2
+      };
+
+      pedidosFiltrados.sort((a, b) => {
+        return ordenEstado[a.estado] - ordenEstado[b.estado];
+      });
       setPedidos(pedidosFiltrados);
     } catch (error) {
       console.error("Error al cargar pedidos:", error);
     }
   };
 
+  const cambiarEstado = async (id, nuevoEstado) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.patch(
+        `http://localhost:3001/api/orders/${id}/status`,
+        { status: nuevoEstado },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      fetchPedidos();
+    } catch (error) {
+      console.error("Error al cambiar estado del pedido:", error);
+    }
+  };
+
   useEffect(() => {
     fetchPedidos();
-    const interval = setInterval(fetchPedidos, 10000); // refresca cada 10 seg
+    const interval = setInterval(fetchPedidos, 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -83,7 +103,6 @@ export default function CocinaPage() {
 
   return (
     <main className="min-h-screen bg-[#18181c] p-8 relative">
-      {/* Botón Cerrar Sesión */}
       <button
         onClick={handleLogout}
         className="absolute top-4 right-4 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-3 py-1 rounded shadow"
@@ -95,6 +114,7 @@ export default function CocinaPage() {
       <h1 className="text-white text-xl sm:text-2xl font-semibold mb-8">
         Panel de Cocina
       </h1>
+
       <div className="flex flex-wrap gap-8 justify-start">
         {pedidos.length === 0 && (
           <p className="text-gray-400">No hay pedidos con productos de comida.</p>
@@ -110,41 +130,57 @@ export default function CocinaPage() {
                 Pedido: #{pedido.id.toString().slice(-4).padStart(4, "0")}
               </span>
               <div className="flex items-center gap-2">
-                <span
-                  className={`px-2 py-0.5 rounded-full text-xs font-bold ${badgeColor(
-                    pedido.estado
-                  )}`}
-                >
+                <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${badgeColor(pedido.estado)}`}>
                   {pedido.estado.charAt(0).toUpperCase() + pedido.estado.slice(1)}
                 </span>
                 <span className="text-xs text-gray-400 font-mono">{pedido.hora}</span>
               </div>
             </div>
+
             <div className="mt-1 mb-1">
               <span className="inline-block bg-[#2563eb] text-white px-4 py-1 rounded-2xl font-bold text-sm tracking-wide shadow-sm">
                 {pedido.mesa}
               </span>
             </div>
+
             <div className="flex items-center gap-2 text-gray-300 text-sm mt-1">
               <span className="text-lg">👤</span>
               <span className="font-medium">Mozo: {pedido.mozo}</span>
             </div>
+
             {pedido.notas && (
               <div className="flex items-start gap-2 text-[13px] text-[#ff6666] mb-1">
                 <span className="text-lg">📄</span>
                 <span className="font-medium">"{pedido.notas}"</span>
               </div>
             )}
+
             <div className="text-[13px] text-white font-bold mb-1">Detalle del Pedido:</div>
-            <div
-              className="rounded-xl bg-[#2a2a2e]/80 text-gray-200 p-4 text-[15px] font-semibold shadow-inner border border-[#2a2a2e]"
-              style={{ backdropFilter: "blur(4px)" }}
-            >
+            <div className="rounded-xl bg-[#2a2a2e]/80 text-gray-200 p-4 text-[15px] font-semibold shadow-inner border border-[#2a2a2e]">
               {pedido.detalle.map((d, i) => (
-                <div key={i} className="mb-1 last:mb-0">
-                  {d}
-                </div>
+                <div key={i} className="mb-1 last:mb-0">{d}</div>
               ))}
+            </div>
+
+            {/* Dropdown de cambio de estado */}
+            <div className="mt-2">
+              <label className="text-sm text-gray-300 mr-2 font-semibold">Cambiar estado:</label>
+              <select
+                value={pedido.estado}
+                onChange={(e) => {
+                  const nuevoEstado = e.target.value;
+                  if (nuevoEstado === "listo") {
+                    const confirmar = confirm("¿Confirmás que este pedido está listo?");
+                    if (!confirmar) return;
+                  }
+                  cambiarEstado(pedido.id, nuevoEstado);
+                }}
+                className="bg-[#2a2a2e] text-white text-sm px-3 py-1 rounded border border-gray-600 mt-1"
+              >
+                <option value="pendiente">🕓 Pendiente</option>
+                <option value="en preparación">🍳 En preparación</option>
+                <option value="listo">✅ Listo</option>
+              </select>
             </div>
           </div>
         ))}
