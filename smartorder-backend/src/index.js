@@ -1,7 +1,10 @@
 const express = require('express');
+const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const productRoutes = require('./routes/productRoutes');
+const userRoutes = require('./routes/userRoutes');
+const mesaRoutes = require('./routes/mesaRoutes');
 
 // Cargar variables de entorno
 dotenv.config();
@@ -10,6 +13,11 @@ dotenv.config();
 connectDB();
 
 const app = express();
+
+app.use(cors({
+  origin: 'http://localhost:3000', // URL donde corre tu frontend
+  credentials: true,
+}));
 
 // Middleware para JSON
 app.use(express.json());
@@ -21,8 +29,15 @@ app.get('/', (req, res) => {
 
 app.use('/api/products', productRoutes);
 
+app.use('/api/users', userRoutes);
+
+app.use("/api/mesas", mesaRoutes);
+
+app.use('/api/orders', require('./routes/orderRoutes'));
+
+
 // Servidor escuchando
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
