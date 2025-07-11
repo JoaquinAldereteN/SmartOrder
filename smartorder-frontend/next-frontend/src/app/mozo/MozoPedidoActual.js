@@ -8,6 +8,7 @@ export default function MozoPedidoActual({
   quitarProducto,
   onBack,
   onSend,
+  esEdicion // <- NUEVO: true si la mesa ya tiene pedido abierto
 }) {
   if (!mesa) return <p className="text-center text-red-500 mt-6">Mesa no seleccionada</p>;
 
@@ -65,7 +66,6 @@ export default function MozoPedidoActual({
           ))
         )}
       </div>
-
       <textarea
         className="w-full p-2 mb-4 rounded bg-gray-800 text-white resize-none"
         placeholder="Agregar nota al pedido..."
@@ -73,7 +73,6 @@ export default function MozoPedidoActual({
         onChange={(e) => setNota(e.target.value)}
         rows={3}
       />
-
       <div className="flex justify-between items-center">
         <p className="font-bold text-lg">Total: ${total.toFixed(2)}</p>
         <button
@@ -81,7 +80,7 @@ export default function MozoPedidoActual({
           disabled={productosEnPedido.length === 0}
           className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-6 rounded"
         >
-          Enviar Pedido
+          {esEdicion ? "Agregar productos al pedido" : "Enviar Pedido"}
         </button>
       </div>
     </div>

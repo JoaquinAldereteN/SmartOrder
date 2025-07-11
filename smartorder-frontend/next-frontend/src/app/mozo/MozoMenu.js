@@ -3,7 +3,6 @@ import { useState } from "react";
 export default function MozoMenu({ productos, pedido, setCantidad, getCantidad, busqueda, setBusqueda, onBack, onNext }) {
   const [categoriaFiltro, setCategoriaFiltro] = useState("Todas");
 
-  // Filtrar productos por categoría y búsqueda
   const productosFiltrados = productos.filter((p) => {
     const coincideCategoria = categoriaFiltro === "Todas" || p.category === categoriaFiltro;
     const coincideBusqueda = p.name?.toLowerCase().includes(busqueda.toLowerCase());
@@ -16,7 +15,6 @@ export default function MozoMenu({ productos, pedido, setCantidad, getCantidad, 
         <button onClick={onBack} className="text-blue-400 hover:underline mb-2">
           ← Volver a Mesas
         </button>
-
         {/* Botones para filtrar categoría */}
         <div className="mb-2 flex gap-2">
           {["Todas", "Comida", "Bebida"].map((cat) => (
@@ -34,7 +32,6 @@ export default function MozoMenu({ productos, pedido, setCantidad, getCantidad, 
             </button>
           ))}
         </div>
-
         <input
           type="text"
           placeholder="Buscar producto..."
@@ -43,7 +40,6 @@ export default function MozoMenu({ productos, pedido, setCantidad, getCantidad, 
           className="w-full rounded px-3 py-2 text-white"
         />
       </header>
-
       <div className="flex-1 overflow-y-auto">
         {productosFiltrados.length === 0 ? (
           <p className="text-gray-400 text-center">No se encontraron productos</p>
@@ -78,7 +74,6 @@ export default function MozoMenu({ productos, pedido, setCantidad, getCantidad, 
           ))
         )}
       </div>
-
       <button
         onClick={onNext}
         disabled={pedido.length === 0}

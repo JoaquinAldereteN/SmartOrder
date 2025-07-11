@@ -7,7 +7,7 @@ const badgeColor = (estado) => {
     case "pendiente": return "bg-orange-800 text-orange-100";
     case "en preparación": return "bg-blue-800 text-blue-100";
     case "listo": return "bg-blue-800 text-blue-100";
-    case "entregado": return "bg-blue-800 text-blue-100";
+    case "a cobrar": return "bg-blue-800 text-blue-100";
     case "pagado": return "bg-green-800 text-green-100";
     default: return "bg-gray-600 text-white";
   }
@@ -90,12 +90,12 @@ export default function CajaBoxPage() {
       const token = localStorage.getItem("token");
       await axios.patch(
         `http://localhost:3001/api/orders/${id}/status`,
-        { status: "entregado" }, // o el estado que prefieras
+        { status: "a cobrar" }, // o el estado que prefieras
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setPedidos((prev) =>
         prev.map((p) =>
-          p.id === id ? { ...p, estado: "entregado" } : p
+          p.id === id ? { ...p, estado: "a cobrar" } : p
         )
       );
       alert("Pago deshecho correctamente");
