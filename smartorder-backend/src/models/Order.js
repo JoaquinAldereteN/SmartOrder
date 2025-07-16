@@ -36,15 +36,15 @@ const orderSchema = new mongoose.Schema({
   },
   status: { // Estado general del pedido
     type: String,
-    enum: ['pendiente', 'en preparación', 'listo', 'en mesa', 'a cobrar', 'pagado'],
+    enum: ['pendiente', 'en preparación', 'listo', 'en mesa', 'a cobrar', 'pagado', 'cerrado'],
     default: 'pendiente'
   },
   notes: { type: String },
   mesa: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Mesa',
-    required: true,
-    unique: true // Solo un pedido abierto por mesa (cuidado con los cerrados, después explico)
+    required: true
+    // unique: true
   }
 }, { timestamps: true });
 

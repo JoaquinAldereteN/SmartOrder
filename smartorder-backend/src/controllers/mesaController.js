@@ -1,5 +1,5 @@
 const Mesa = require('../models/Mesa');
-const Order = require("../models/Order");
+const Order = require('../models/Order');
 
 const getMesas = async (req, res) => {
   try {
@@ -33,16 +33,27 @@ const updateEstadoMesa = async (req, res) => {
   }
 };
 
+// NUEVO: liberar mesa solo actualiza el estado, no borra pedido pagado
 const liberarMesa = async (req, res) => {
   const { id } = req.params;
   try {
-    // 1. Poner mesa disponible
+    console.log("[LIBERAR MESA] ID mesa:", id);
+
+    // 1. Cambiar la mesa a disponible
     const mesa = await Mesa.findByIdAndUpdate(id, { estado: "disponible" }, { new: true });
-    // 2. Eliminar pedido pagado asociado a la mesa
-    await Order.deleteMany({ mesa: id, status: "pagado" });
-    res.json({ message: "Mesa liberada y pedido eliminado", mesa });
+    if (!mesa) {
+      console.log("[ERROR] Mesa no encontrada");
+      return res.status(404).json({ message: "Mesa no encontrada" });
+    }
+
+    // 2. Cambiar el estado del pedido pagado a finalizado
+    const result = await Order.updateMany({ mesa: id, status: "pagado" }, { status: "cerrado" });
+    console.log("[UPDATE ORDERS] Modified:", result.modifiedCount);
+
+    res.json({ message: "Mesa liberada, pedido finalizado", mesa });
   } catch (err) {
-    res.status(500).json({ message: "Error al liberar mesa" });
+    console.error("[ERROR liberarMesa]:", err);
+    res.status(500).json({ message: "Error al liberar mesa", error: err.message });
   }
 };
 
