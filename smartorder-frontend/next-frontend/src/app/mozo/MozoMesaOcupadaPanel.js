@@ -31,12 +31,14 @@ export default function MozoMesaOcupadaPanel({
         </div>
       )}
       <div className="flex gap-4 mb-4">
-        <button
-          className="bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-lg font-bold"
-          onClick={onFinalizarCobrar}
-        >
-          Finalizar / Cobrar
-        </button>
+        {pedido && pedido.status === "en mesa" && (
+          <button
+            className="bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-lg font-bold"
+            onClick={onFinalizarCobrar}
+          >
+            Finalizar / Cobrar
+          </button>
+        )}
         <button
           className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-lg font-bold"
           onClick={onEditarPedido}
@@ -59,7 +61,7 @@ export default function MozoMesaOcupadaPanel({
           className="bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-lg font-bold mt-1"
           onClick={onLiberarMesa}
         >
-          Mesa desocupada
+          Liberar Mesa
         </button>
       )}
       <button

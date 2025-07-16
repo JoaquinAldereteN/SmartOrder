@@ -18,28 +18,44 @@ export default function MozoPage() {
   const [esEdicion, setEsEdicion] = useState(false);
   const [pedidoAbiertoId, setPedidoAbiertoId] = useState(null);
   const [pedidoMesaOcupada, setPedidoMesaOcupada] = useState(null);
+  const [refreshMesasKey, setRefreshMesasKey] = useState(Date.now());
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const role = localStorage.getItem('role');
-    if (!token || (role !== 'waiter' && role !== 'admin')) {
-      window.location.href = '/unauthorized';
-    } else {
-      setVerificandoRol(false);
-    }
-  }, []);
+  // SINCRONIZA DATOS AL INICIAR
+  const cargarMesasYProductos = async () => {
+    const token = localStorage.getItem("token");
+    const mesasResp = await axios.get("http://localhost:3001/api/mesas", {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const productosResp = await axios.get("http://localhost:3001/api/products", {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    setMesas(mesasResp.data);
+    setProductos(productosResp.data);
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    axios.get("http://localhost:3001/api/mesas", {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then((res) => setMesas(res.data));
-    axios.get("http://localhost:3001/api/products", {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then((res) => setProductos(res.data));
+    const role = localStorage.getItem("role");
+    if (!token || (role !== "waiter" && role !== "admin")) {
+      window.location.href = "/unauthorized";
+    } else {
+      setVerificandoRol(false);
+      cargarMesasYProductos();
+    }
   }, []);
+
+  // RESET GENERAL: siempre deja todo limpio y actualiza mesas (después de acciones)
+  const refrescarMesasYReset = async () => {
+    await cargarMesasYProductos();
+    setStep(0);
+    setMesaSeleccionada(null);
+    setPedidoMesaOcupada(null);
+    setEsEdicion(false);
+    setPedidoAbiertoId(null);
+    setPedido([]);
+    setNota("");
+    setRefreshMesasKey(Date.now());
+  };
 
   const getCantidad = (id) => pedido.find((p) => p.productoId === id)?.cantidad || 0;
 
@@ -56,42 +72,37 @@ export default function MozoPage() {
 
   const quitarProducto = (id) => setPedido((prev) => prev.filter((p) => p.productoId !== id));
 
-  const refrescarMesasYReset = async () => {
-    const token = localStorage.getItem("token");
-    const mesasActualizadas = await axios.get("http://localhost:3001/api/mesas", {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    setMesas(mesasActualizadas.data);
-    setStep(0);
-    setMesaSeleccionada(null);
-    setPedidoMesaOcupada(null);
-    setEsEdicion(false);
-    setPedidoAbiertoId(null);
-  };
-
-  // MODIFICADO: cuando se selecciona una mesa, si hay pedido abierto, muestra panel intermedio
-  const handleMesaNext = () => {
+  // ----- FLUJO AL SELECCIONAR UNA MESA -----
+  const handleMesaNext = async () => {
     if (!mesaSeleccionada) return;
     const token = localStorage.getItem("token");
-    axios.get("http://localhost:3001/api/orders?mesa=" + mesaSeleccionada, {
+    const res = await axios.get("http://localhost:3001/api/orders?mesa=" + mesaSeleccionada, {
       headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(res => {
-        const abiertos = res.data.filter(
-          o => ["pendiente", "en preparación", "listo", "en mesa", "a cobrar", "pagado"].includes(o.status)
-        );
-        if (abiertos.length > 0) {
-          setEsEdicion(true);
-          setPedidoAbiertoId(abiertos[0]._id);
-          setPedidoMesaOcupada(abiertos[0]);
-          setStep("mesa-ocupada");
-        } else {
-          setEsEdicion(false);
-          setPedidoAbiertoId(null);
-          setPedidoMesaOcupada(null);
-          setStep(1);
-        }
-      });
+    });
+    const abiertos = res.data.filter(
+      o =>
+        [
+          "pendiente",
+          "en preparación",
+          "listo",
+          "en mesa",
+          "a cobrar",
+          "pagado"
+        ].includes(o.status)
+    );
+    if (abiertos.length > 0) {
+      setEsEdicion(true);
+      setPedidoAbiertoId(abiertos[0]._id);
+      setPedidoMesaOcupada(abiertos[0]);
+      setStep("mesa-ocupada");
+    } else {
+      setEsEdicion(false);
+      setPedidoAbiertoId(null);
+      setPedidoMesaOcupada(null);
+      setPedido([]); // reset
+      setNota("");   // reset
+      setStep(1);
+    }
   };
 
   // Handler para finalizar/cobrar
@@ -228,6 +239,7 @@ export default function MozoPage() {
     }
   };
 
+  // ----- RENDER -----
   return (
     <div className="min-h-screen flex flex-col bg-[#131416] text-white h-screen w-screen">
       <header className="sticky top-0 z-30 bg-gray-900 px-4 md:px-6 py-4 flex items-center justify-between shadow-md">
@@ -257,6 +269,7 @@ export default function MozoPage() {
                 setMesaSeleccionada={setMesaSeleccionada}
                 onNext={handleMesaNext}
                 setPedidoActual={setEsEdicion}
+                refreshKey={refreshMesasKey}
               />
             </div>
           )}
@@ -269,13 +282,7 @@ export default function MozoPage() {
                 onEditarPedido={handleEditarPedido}
                 onPedidoEnMesa={handlePedidoEnMesa}
                 onLiberarMesa={handleLiberarMesa}
-                onVolver={() => {
-                  setStep(0);
-                  setMesaSeleccionada(null);
-                  setPedidoMesaOcupada(null);
-                  setEsEdicion(false);
-                  setPedidoAbiertoId(null);
-                }}
+                onVolver={refrescarMesasYReset}
               />
             </div>
           )}
@@ -288,7 +295,7 @@ export default function MozoPage() {
                 getCantidad={getCantidad}
                 busqueda={busqueda}
                 setBusqueda={setBusqueda}
-                onBack={() => setStep(0)}
+                onBack={refrescarMesasYReset}
                 onNext={() => setStep(2)}
               />
             </div>
@@ -324,6 +331,7 @@ export default function MozoPage() {
               setMesaSeleccionada={setMesaSeleccionada}
               onNext={handleMesaNext}
               setPedidoActual={setEsEdicion}
+              refreshKey={refreshMesasKey}
             />
           </div>
           <div
@@ -343,13 +351,7 @@ export default function MozoPage() {
               onEditarPedido={handleEditarPedido}
               onPedidoEnMesa={handlePedidoEnMesa}
               onLiberarMesa={handleLiberarMesa}
-              onVolver={() => {
-                setStep(0);
-                setMesaSeleccionada(null);
-                setPedidoMesaOcupada(null);
-                setEsEdicion(false);
-                setPedidoAbiertoId(null);
-              }}
+              onVolver={refrescarMesasYReset}
             />
           </div>
           <div
@@ -369,7 +371,7 @@ export default function MozoPage() {
               getCantidad={getCantidad}
               busqueda={busqueda}
               setBusqueda={setBusqueda}
-              onBack={() => setStep(0)}
+              onBack={refrescarMesasYReset}
               onNext={() => setStep(2)}
             />
           </div>

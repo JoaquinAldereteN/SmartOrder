@@ -1,8 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { FiLogOut, FiPlay, FiBarChart2, FiUsers, FiMenu, FiX } from "react-icons/fi";
+import { FiLogOut, FiMenu, FiX } from "react-icons/fi";
 import CajaBoxPage from "./box/page";
-
 
 function NavItem({ href, children, icon, onClick }) {
   return (
@@ -17,46 +16,23 @@ function NavItem({ href, children, icon, onClick }) {
   );
 }
 
-const formatoTitulo = (str) =>
-  str
-    .split("-")
-    .map((palabra) => palabra[0].toUpperCase() + palabra.slice(1))
-    .join(" ");
-
 export default function CajaPanel() {
-  const [seccionActiva, setSeccionActiva] = useState("inicio");
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [verificandoRol, setVerificandoRol] = useState(true);
 
-useEffect(() => {
-  const token = localStorage.getItem('token');
-  const role = localStorage.getItem('role');
-
-  if (!token || (role !== 'cashier' && role !== 'admin')) {
-    window.location.href = '/unauthorized';
-  } else {
-    setVerificandoRol(false);
-  }
-}, []);
-
   useEffect(() => {
-    const tituloSeccion = seccionActiva === "inicio" ? "Inicio" : formatoTitulo(seccionActiva);
-    document.title = `Panel Caja - ${tituloSeccion}`;
-  }, [seccionActiva]);
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
 
-  const renderContenido = () => {
-    switch (seccionActiva) {
-      case "caja":
-           return <CajaBoxPage />;
-      default:
-        return <p className="text-white">Selecciona una opción del menú.</p>;
+    if (!token || (role !== 'cashier' && role !== 'admin')) {
+      window.location.href = '/unauthorized';
+    } else {
+      setVerificandoRol(false);
     }
-  };
+    document.title = "Panel Caja - Caja";
+  }, []);
 
-  const handleSeleccion = (seccion) => {
-    setSeccionActiva(seccion);
-    setMenuAbierto(false);
-  };
+  if (verificandoRol) return null;
 
   return (
     <div className="flex min-h-screen w-full bg-gray-50 overflow-hidden shadow-2xl relative">
@@ -75,31 +51,19 @@ useEffect(() => {
           <h1 className="text-2xl font-bold text-blue-600">Panel de Caja</h1>
           <p className="text-sm text-gray-400 mt-1">Gestión de ventas y caja</p>
         </div>
-
         <nav className="flex flex-col space-y-4 flex-grow overflow-y-auto">
-          <button
-            onClick={() => handleSeleccion("caja")}
-            className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition flex items-center gap-2"
-          >
-            <FiUsers /> Caja
-          </button>
-
           <NavItem
-          href="/logout"
-          icon={<FiLogOut size={18} />}
-          onClick={(e) => {
-          e.preventDefault();
-          // Limpiar token y rol
-          localStorage.removeItem('token');
-          localStorage.removeItem('role');
-
-          // Redireccionar al login
-          window.location.href = '/login';
-          }}
->
-          Cerrar Sesión
+            href="/logout"
+            icon={<FiLogOut size={18} />}
+            onClick={e => {
+              e.preventDefault();
+              localStorage.removeItem('token');
+              localStorage.removeItem('role');
+              window.location.href = '/login';
+            }}
+          >
+            Cerrar Sesión
           </NavItem>
-
         </nav>
       </aside>
 
@@ -121,31 +85,19 @@ useEffect(() => {
                 <FiX size={24} />
               </button>
             </div>
-
             <nav className="flex flex-col space-y-4 flex-grow">
-              <button
-                onClick={() => handleSeleccion("caja")}
-                className="w-full text-left px-3 py-2 rounded hover:bg-gray-700 transition flex items-center gap-2"
+              <NavItem
+                href="/logout"
+                icon={<FiLogOut size={18} />}
+                onClick={e => {
+                  e.preventDefault();
+                  localStorage.removeItem('token');
+                  localStorage.removeItem('role');
+                  window.location.href = '/login';
+                }}
               >
-                <FiUsers /> Caja
-              </button>
-
-            <NavItem
-              href="/logout"
-              icon={<FiLogOut size={18} />}
-              onClick={(e) => {
-                e.preventDefault();
-                // Limpiar token y rol
-                localStorage.removeItem('token');
-                localStorage.removeItem('role');
-
-                // Redireccionar al login
-                window.location.href = '/login';
-              }}
-            >
-              Cerrar Sesión
-            </NavItem>
-
+                Cerrar Sesión
+              </NavItem>
             </nav>
           </aside>
         </>
@@ -157,9 +109,9 @@ useEffect(() => {
         style={{ backgroundColor: "#111827", minHeight: "100vh" }}
       >
         <h2 className="text-2xl font-semibold mb-6 border-b border-gray-600 pb-2 text-white">
-          {seccionActiva === "inicio" ? "Inicio" : formatoTitulo(seccionActiva)}
+          Caja
         </h2>
-        {renderContenido()}
+        <CajaBoxPage />
       </main>
     </div>
   );

@@ -4,11 +4,9 @@ import axios from "axios";
 
 const badgeColor = (estado) => {
   switch (estado) {
-    case "pendiente": return "bg-orange-800 text-orange-100";
-    case "en preparación": return "bg-blue-800 text-blue-100";
-    case "listo": return "bg-blue-800 text-blue-100";
     case "a cobrar": return "bg-blue-800 text-blue-100";
     case "pagado": return "bg-green-800 text-green-100";
+    case "cerrado": return "bg-red-600 text-red-100";
     default: return "bg-gray-600 text-white";
   }
 };
@@ -18,23 +16,35 @@ export default function CajaBoxPage() {
   const [loading, setLoading] = useState(true);
   const [mesaBuscada, setMesaBuscada] = useState("");
   const [mozoSeleccionado, setMozoSeleccionado] = useState("");
-
-  // Estados para modal y pedido seleccionado
   const [modalVisible, setModalVisible] = useState(false);
   const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null);
 
-  // Carga pedidos
+  // Carga pedidos SOLO a cobrar, pagados o cerrados
   const fetchPedidos = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
       const response = await axios.get("http://localhost:3001/api/orders", {
         headers: {
-          Authorization: `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
 
-      const pedidosAdaptados = response.data.map((pedido) => ({
+      // FILTRA solo los pedidos en estado "a cobrar", "pagado" o "cerrado"
+      let pedidosFiltrados = response.data.filter(
+        (pedido) =>
+          pedido.status === "a cobrar" ||
+          pedido.status === "pagado" ||
+          pedido.status === "cerrado"
+      );
+
+      // ORDENAR: primero "a cobrar", luego "pagado", luego "cerrado"
+      pedidosFiltrados = pedidosFiltrados.sort((a, b) => {
+        const orden = { "a cobrar": 1, "pagado": 2, "cerrado": 3 };
+        return (orden[a.status] || 4) - (orden[b.status] || 4);
+      });
+
+      const pedidosAdaptados = pedidosFiltrados.map((pedido) => ({
         id: pedido._id,
         mesa: pedido.mesa,
         mozo: pedido.user?.username || "Mozo desconocido",
@@ -61,7 +71,6 @@ export default function CajaBoxPage() {
     fetchPedidos();
   }, []);
 
-  // Marca pedido como pagado con confirmación modal
   const marcarComoPagado = async (id) => {
     try {
       const token = localStorage.getItem("token");
@@ -70,7 +79,6 @@ export default function CajaBoxPage() {
         { status: "pagado" },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      // Actualizo localmente el estado para no tener que recargar toda la lista
       setPedidos((prev) =>
         prev.map((p) =>
           p.id === id ? { ...p, estado: "pagado" } : p
@@ -84,13 +92,12 @@ export default function CajaBoxPage() {
     }
   };
 
-  // Deshacer pago
   const deshacerPago = async (id) => {
     try {
       const token = localStorage.getItem("token");
       await axios.patch(
         `http://localhost:3001/api/orders/${id}/status`,
-        { status: "a cobrar" }, // o el estado que prefieras
+        { status: "a cobrar" },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setPedidos((prev) =>
@@ -174,8 +181,9 @@ export default function CajaBoxPage() {
                   </div>
                 </div>
 
-                <div className="flex gap-2 mt-4">
-                  {pedido.estado !== "pagado" ? (
+                {/* BOTONES según estado */}
+                {pedido.estado === "a cobrar" && (
+                  <div className="flex gap-2 mt-4">
                     <button
                       onClick={() => {
                         setPedidoSeleccionado(pedido);
@@ -185,15 +193,22 @@ export default function CajaBoxPage() {
                     >
                       ✔ Cobrar
                     </button>
-                  ) : (
+                  </div>
+                )}
+
+                {pedido.estado === "pagado" && (
+                  <div className="flex gap-2 mt-4">
                     <button
                       onClick={() => deshacerPago(pedido.id)}
                       className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow"
                     >
                       Deshacer Pago
                     </button>
-                  )}
-                </div>
+                  </div>
+                )}
+
+                {/* Si está cerrado, no muestra ningún botón */}
+
               </div>
             );
           })}

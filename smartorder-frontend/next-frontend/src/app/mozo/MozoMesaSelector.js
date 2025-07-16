@@ -7,6 +7,7 @@ export default function MozoMesaSelector({
   setMesaSeleccionada,
   onNext,
   setPedidoActual,
+  refreshKey,
 }) {
   const [ocupadas, setOcupadas] = useState([]);
   const [mensaje, setMensaje] = useState("");
@@ -33,7 +34,7 @@ export default function MozoMesaSelector({
           .map((order) => order.mesa?._id || order.mesa);
         setOcupadas(ocupadasIds);
       });
-  }, []);
+  }, [refreshKey]);
 
   const handleSelect = (mesa) => {
     setMensaje("");
