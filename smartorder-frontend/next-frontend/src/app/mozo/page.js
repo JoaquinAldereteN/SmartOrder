@@ -201,7 +201,7 @@ export default function MozoPage() {
       try {
         await axios.patch(
           `http://localhost:3001/api/orders/${pedidoAbiertoId}/add-products`,
-          { nuevosItems: items },
+          { nuevosItems: items, notes: nota },
           { headers: { Authorization: `Bearer ${token}` } }
         );
         // Si el pedido estaba "en mesa", ponelo en "en preparación"

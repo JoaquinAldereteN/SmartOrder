@@ -9,6 +9,8 @@ export default function MozoMesaOcupadaPanel({
 }) {
   if (!mesa) return null;
 
+  const pedidoBloqueado = pedido && ["a cobrar", "pagado", "cerrado"].includes(pedido.status);
+
   return (
     <div className="flex flex-col items-center justify-center h-full px-6 py-12 bg-[#18181c] rounded-3xl shadow-2xl">
       <h2 className="text-2xl font-bold mb-4 text-blue-400">Mesa {mesa.nombre}</h2>
@@ -39,12 +41,14 @@ export default function MozoMesaOcupadaPanel({
             Finalizar / Cobrar
           </button>
         )}
-        <button
-          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-lg font-bold"
-          onClick={onEditarPedido}
-        >
-          Editar Pedido
-        </button>
+         {pedido && !pedidoBloqueado && (
+          <button
+            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-lg font-bold"
+            onClick={onEditarPedido}
+          >
+            Editar Pedido
+          </button>
+        )}
       </div>
       {/* BOTÓN NUEVO */}
       {pedido && pedido.status === "listo" && (
