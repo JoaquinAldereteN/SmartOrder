@@ -75,12 +75,15 @@ const getOrderById = async (req, res) => {
 const addProductsToOrder = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nuevosItems } = req.body;
+    const { nuevosItems, notes } = req.body;   // <-- ahora acepta notes!
     const order = await Order.findById(id);
     if (!order) return res.status(404).json({ message: 'Pedido no encontrado' });
     nuevosItems.forEach(item => {
       order.items.push({ ...item, agregado: true });
     });
+    if (typeof notes === 'string') {
+      order.notes = notes;  // <-- sobrescribe la nota
+    }
     await order.save();
     res.json(order);
   } catch (error) {
