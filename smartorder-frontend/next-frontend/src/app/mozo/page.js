@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import MozoMesaSelector from "./MozoMesaSelector";
 import MozoMenu from "./MozoMenu";
 import MozoPedidoActual from "./MozoPedidoActual";
@@ -19,6 +19,13 @@ export default function MozoPage() {
   const [pedidoAbiertoId, setPedidoAbiertoId] = useState(null);
   const [pedidoMesaOcupada, setPedidoMesaOcupada] = useState(null);
   const [refreshMesasKey, setRefreshMesasKey] = useState(Date.now());
+
+  // Notificación de pedido listo
+  const [pedidoListoNotif, setPedidoListoNotif] = useState(null); // {mesa, pedidoId}
+  const lastNotifiedPedidosRef = useRef([]); // [{pedidoId, updatedAt}]
+
+  // --- AUDIO REF para el timbre ---
+  const audioRef = useRef();
 
   // SINCRONIZA DATOS AL INICIAR
   const cargarMesasYProductos = async () => {
@@ -43,6 +50,55 @@ export default function MozoPage() {
       cargarMesasYProductos();
     }
   }, []);
+
+  // --- Polling para notificación de pedidos listos ---
+  useEffect(() => {
+    if (verificandoRol) return;
+    const interval = setInterval(async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get("http://localhost:3001/api/orders", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const pedidosListos = res.data.filter(
+          o => o.status === "listo"
+        );
+        // Buscar si hay algún "listo" NO notificado con este updatedAt
+        const nuevosListos = pedidosListos.filter(o =>
+          !lastNotifiedPedidosRef.current.some(
+            n =>
+              n.pedidoId === o._id &&
+              n.updatedAt === o.updatedAt
+          )
+        );
+        if (nuevosListos.length > 0) {
+          setPedidoListoNotif({
+            mesa: nuevosListos[0].mesa?.nombre || "Mesa desconocida",
+            pedidoId: nuevosListos[0]._id
+          });
+          lastNotifiedPedidosRef.current.push({
+            pedidoId: nuevosListos[0]._id,
+            updatedAt: nuevosListos[0].updatedAt
+          });
+        }
+      } catch (err) {
+        // ignorar error
+      }
+    }, 8000);
+    return () => clearInterval(interval);
+  }, [verificandoRol]);
+
+  // Toast desaparece a los 4.5s + sonido
+  useEffect(() => {
+    if (pedidoListoNotif) {
+      if (audioRef.current) {
+        audioRef.current.currentTime = 0;
+        audioRef.current.play();
+      }
+      const timer = setTimeout(() => setPedidoListoNotif(null), 4500);
+      return () => clearTimeout(timer);
+    }
+  }, [pedidoListoNotif]);
 
   // RESET GENERAL: siempre deja todo limpio y actualiza mesas (después de acciones)
   const refrescarMesasYReset = async () => {
@@ -239,9 +295,29 @@ export default function MozoPage() {
     }
   };
 
-  // ----- RENDER -----
   return (
     <div className="min-h-screen flex flex-col bg-[#131416] text-white h-screen w-screen">
+      {/* ----------- AUDIO NOTIFICACIÓN ----------- */}
+      <audio ref={audioRef} src="/sounds/timbre.wav" preload="auto" />
+      {/* ----------- TOAST NOTIFICACIÓN ----------- */}
+      {pedidoListoNotif && (
+        <div
+          className="fixed top-4 left-1/2 -translate-x-1/2 bg-green-600 text-white font-bold shadow-lg px-7 py-4 rounded-xl z-50 cursor-pointer animate-bounce"
+          style={{
+            minWidth: "320px",
+            maxWidth: "90vw",
+            fontSize: "1.2rem",
+            boxShadow: "0 8px 24px #0009"
+          }}
+          onClick={() => setPedidoListoNotif(null)}
+        >
+          <span className="mr-2">🛎️</span>
+          Pedido listo para retirar:
+          <span className="ml-2 text-white underline">{pedidoListoNotif.mesa}</span>
+        </div>
+      )}
+
+      {/* HEADER Y MAIN */}
       <header className="sticky top-0 z-30 bg-gray-900 px-4 md:px-6 py-4 flex items-center justify-between shadow-md">
         <h1 className="text-white text-lg md:text-2xl font-semibold">
           Panel del Mozo
