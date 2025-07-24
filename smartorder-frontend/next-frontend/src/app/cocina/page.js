@@ -2,16 +2,33 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const badgeColor = (estado) => {
+// Función para normalizar estado por si llega distinto (opcional)
+const normalizarEstado = (estado) =>
+  estado?.toLowerCase().replace("í", "i").replace("ó", "o");
+
+// Calcula el color del bloque según los items
+const calcularEstadoVisual = (items) => {
+  const estados = items.map(item => normalizarEstado(item.status));
+  // Todos pendientes
+  if (estados.length && estados.every(st => st === "pendiente")) return "pendiente";
+  // Todos en preparación
+  if (estados.length && estados.every(st => st === "en preparacion" || st === "en preparación")) return "en preparación";
+  // Todos listos (o en mesa)
+  if (estados.length && estados.every(st => st === "listo" || st === "en mesa")) return "listo";
+  // Mezcla: menor prioridad
+  if (estados.includes("pendiente")) return "pendiente";
+  if (estados.includes("en preparacion") || estados.includes("en preparación")) return "en preparación";
+  return "listo";
+};
+
+// Colores visuales según estado general
+const estadoPedidoColor = (estado) => {
   switch (estado) {
-    case "pendiente":
-      return "bg-orange-700 text-orange-100";
-    case "en preparación":
-      return "bg-blue-900 text-blue-100";
-    case "listo":
-      return "bg-green-900 text-green-100";
-    default:
-      return "bg-gray-700 text-gray-100";
+    case "pendiente": return "border-l-8 border-orange-500";
+    case "en preparación": return "border-l-8 border-blue-700";
+    case "en preparacion": return "border-l-8 border-blue-700";
+    case "listo": return "border-l-8 border-green-600";
+    default: return "border-l-8 border-gray-600";
   }
 };
 
@@ -29,34 +46,27 @@ export default function CocinaPage() {
     }
   }, []);
 
-  // Trae TODOS los productos de cocina aunque estén listos (mientras el pedido siga activo)
   const fetchPedidos = async () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get("http://localhost:3001/api/orders/sector/cocina", {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       const pedidosFormateados = response.data.map((pedido) => ({
         id: pedido._id,
         mesa: pedido.mesa?.nombre || "Desconocida",
         mozo: pedido.user?.username || "Mozo desconocido",
-        hora: new Date(pedido.createdAt).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
+        hora: new Date(pedido.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         notas: pedido.notes || "",
         items: pedido.items,
         status: pedido.status,
       }));
-
       setPedidos(pedidosFormateados);
     } catch (error) {
       console.error("Error al cargar pedidos:", error);
     }
   };
 
-  // Cambia estado SOLO de un ITEM de cocina
   const cambiarEstado = async (pedidoId, itemId, nuevoEstado) => {
     try {
       const token = localStorage.getItem("token");
@@ -85,8 +95,25 @@ export default function CocinaPage() {
     window.location.href = "/login";
   };
 
+  // Ordenar pedidos: pendiente > en preparación > listo
+  const pedidosOrdenados = [...pedidos].sort((a, b) => {
+    // Ordenar usando el estado visual calculado
+    const orden = { "pendiente": 0, "en preparación": 1, "en preparacion": 1, "listo": 2 };
+    const estadoA = calcularEstadoVisual(a.items);
+    const estadoB = calcularEstadoVisual(b.items);
+    return (orden[estadoA] ?? 9) - (orden[estadoB] ?? 9);
+  });
+
+  // --- GRID: 2 filas x 3 columnas = 6 pedidos por pantalla 1920x1080 ---
+  const GRID_ROWS = 2;
+  const GRID_COLS = 3;
+  const BLOQUE_W = 600; // px
+  const BLOQUE_H = 440; // px
+
+  const pedidosAMostrar = pedidosOrdenados.slice(0, GRID_ROWS * GRID_COLS);
+
   return (
-    <main className="min-h-screen bg-[#18181c] p-8 relative">
+    <main className="min-h-screen bg-[#18181c] p-8 relative overflow-hidden">
       <button
         onClick={handleLogout}
         className="absolute top-4 right-4 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-3 py-1 rounded shadow"
@@ -94,85 +121,117 @@ export default function CocinaPage() {
       >
         Cerrar sesión
       </button>
-      <h1 className="text-white text-xl sm:text-2xl font-semibold mb-8">
-        Panel de Cocina
-      </h1>
-      <div className="flex flex-wrap gap-8 justify-start">
-        {pedidos.length === 0 && (
-          <p className="text-gray-400">No hay productos pendientes de cocina.</p>
+      <h1 className="text-white text-2xl font-semibold mb-6">Panel de Cocina</h1>
+
+      <div
+        className="w-full mx-auto"
+        style={{
+          display: "grid",
+          gridTemplateColumns: `repeat(${GRID_COLS}, ${BLOQUE_W}px)`,
+          gridTemplateRows: `repeat(${GRID_ROWS}, ${BLOQUE_H}px)`,
+          gap: "32px",
+          justifyContent: "center",
+          alignItems: "center",
+          height: GRID_ROWS * BLOQUE_H + (GRID_ROWS - 1) * 32
+        }}
+      >
+        {pedidosAMostrar.length === 0 && (
+          <div className="col-span-full text-gray-400 text-center">
+            No hay productos pendientes de cocina.
+          </div>
         )}
-        {pedidos.map((pedido) => (
-          <div
-            key={pedido.id}
-            className="w-full max-w-sm bg-[#18181c] rounded-2xl shadow-lg p-6 flex flex-col gap-3 border border-[#23232d]"
-            style={{ boxShadow: "0 2px 16px 0 #0007" }}
-          >
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-semibold text-[#65b4ff]">
-                Pedido: #{pedido.id.toString().slice(-4).padStart(4, "0")}
-              </span>
-              <span className="text-xs text-gray-400 font-mono">{pedido.hora}</span>
-            </div>
-            <div className="mb-2">
-              <span className="inline-block bg-[#2563eb] text-white px-4 py-1 rounded-2xl font-bold text-sm tracking-wide shadow-sm">
-                {pedido.mesa}
-              </span>
-            </div>
-            <div className="flex items-center gap-2 text-gray-300 text-sm mt-1">
-              <span className="text-lg">👤</span>
-              <span className="font-medium">Mozo: {pedido.mozo}</span>
-            </div>
-            {pedido.notas && (
-              <div className="flex items-start gap-2 text-[13px] text-[#ff6666] mb-1">
-                <span className="text-lg">📄</span>
-                <span className="font-medium">"{pedido.notas}"</span>
-              </div>
-            )}
-            <div className="text-[13px] text-white font-bold mb-1">
-              Productos de cocina:
-            </div>
-            <div className="rounded-xl bg-[#2a2a2e]/80 text-gray-200 p-4 text-[15px] font-semibold shadow-inner border border-[#2a2a2e]">
-              {pedido.items.map((item, i) => (
-                <div key={item._id} className="mb-3 last:mb-0 flex flex-col gap-1">
-                  <span>
-                    {item.quantity}x {item.product?.name}
-                  </span>
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${badgeColor(item.status)}`}>
-                    {item.status}
-                  </span>
-                  <div>
-                    <label className="text-sm text-gray-300 mr-2 font-semibold">
-                      Cambiar estado:
-                    </label>
-                    <select
-                      value={item.status}
-                      onChange={(e) => {
-                        const nuevoEstado = e.target.value;
-                        if (nuevoEstado === "listo") {
-                          const confirmar = confirm("¿Confirmás que este producto está listo?");
-                          if (!confirmar) return;
-                        }
-                        cambiarEstado(pedido.id, item._id, nuevoEstado);
-                      }}
-                      className="bg-[#2a2a2e] text-white text-sm px-3 py-1 rounded border border-gray-600 mt-1"
-                    >
-                      <option value="pendiente">🕓 Pendiente</option>
-                      <option value="en preparación">🍳 En preparación</option>
-                      <option value="listo">✅ Listo</option>
-                    </select>
+
+        {pedidosAMostrar.map((pedido, idx) => {
+          const estadoVisual = calcularEstadoVisual(pedido.items);
+
+          return (
+            <div
+              key={pedido.id}
+              className={`relative flex flex-col shadow-xl rounded-2xl bg-[#23232d] p-0 overflow-hidden ${estadoPedidoColor(estadoVisual)}`}
+              style={{ width: BLOQUE_W, height: BLOQUE_H }}
+            >
+              {/* HEADER */}
+              <div className="flex justify-between items-start px-7 pt-5 pb-1">
+                <div>
+                  <div className="text-white text-md font-bold">
+                    Pedido #{pedido.id.toString().slice(-4).padStart(4, "0")}
                   </div>
-                  {item.agregado && (
-                    <span className="text-xs text-yellow-400 italic">(Agregado después)</span>
+                  <div className="text-xl font-bold text-white">{pedido.mesa}</div>
+                  <div className="flex items-center gap-2 text-white font-medium text-base mt-1">
+                    <span className="text-lg">👤</span>
+                    <span>{pedido.mozo}</span>
+                  </div>
+                  {pedido.notas && (
+                    <div className="flex items-center gap-2 text-sm text-[#ff8888] mt-1">
+                      <span className="text-lg">📄</span>
+                      <span className="font-medium">{pedido.notas}</span>
+                    </div>
                   )}
                 </div>
-              ))}
+                <div className="flex flex-col items-end gap-2">
+                  <span className="text-xs text-gray-300 font-mono">{pedido.hora}</span>
+                  <span
+                    className={`text-base font-bold px-4 py-1 rounded-lg text-white`}
+                    style={{
+                      background:
+                        estadoVisual === "pendiente"
+                          ? "#ff8800"
+                          : estadoVisual === "en preparación" || estadoVisual === "en preparacion"
+                          ? "#2563eb"
+                          : estadoVisual === "listo"
+                          ? "#22c55e"
+                          : "#444"
+                    }}
+                  >
+                    {estadoVisual.toUpperCase()}
+                  </span>
+                </div>
+              </div>
+              {/* Productos en GRID dentro del bloque */}
+              <div className="flex-1 w-full px-7 pb-5 pt-2 overflow-hidden">
+                <div
+                  className="grid gap-3"
+                  style={{
+                    gridTemplateColumns: "1fr 1fr",
+                    gridAutoRows: "minmax(60px, 1fr)",
+                  }}
+                >
+                  {pedido.items.map((item, i) => (
+                    <div
+                      key={item._id || i}
+                      className="bg-[#32323c] rounded-lg p-2 flex flex-col gap-1 shadow border border-[#343444] min-w-0"
+                    >
+                      <div className="text-white text-base font-bold whitespace-nowrap overflow-hidden text-ellipsis">
+                        {item.quantity}x {item.product?.name}
+                      </div>
+                      <select
+                        value={item.status}
+                        onChange={e => {
+                          const value = e.target.value;
+                          // Si pasa a "listo", pedir confirmación
+                          if (value === "listo") {
+                            const confirmar = window.confirm("¿Confirmás que este producto está listo?");
+                            if (!confirmar) return;
+                          }
+                          cambiarEstado(pedido.id, item._id, value);
+                        }}
+                        className="bg-[#22222a] border border-[#454559] rounded px-2 py-1 text-white font-semibold text-sm"
+                        style={{ width: "100%" }}
+                      >
+                        <option value="pendiente">🕓 Pendiente</option>
+                        <option value="en preparación">🍳 En Preparación</option>
+                        <option value="listo">✅ Listo</option>
+                      </select>
+                      {item.agregado && (
+                        <span className="text-xs text-yellow-400 italic">(Agregado después)</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-            {/* Estado general del pedido: */}
-            <div className="mt-2 text-xs text-gray-400">
-              Estado general: <span className="font-bold">{pedido.status}</span>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </main>
   );
