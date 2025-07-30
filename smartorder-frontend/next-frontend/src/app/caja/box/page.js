@@ -159,7 +159,7 @@ export default function CajaBoxPage() {
 
                 <div className="text-sm text-[#ff6666] flex gap-2 mb-2">
                   <span>📄</span>
-                  <span className="italic">"{pedido.notas}"</span>
+                  <span className="italic">{pedido.notas}</span>
                 </div>
 
                 <div className="bg-[#2b2b2f] rounded-lg p-4 text-sm border border-[#3a3a3f] shadow-inner">
