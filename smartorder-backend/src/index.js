@@ -14,8 +14,19 @@ connectDB();
 
 const app = express();
 
+// Middleware CORS
+const allowedOrigins = [
+  'http://localhost:3000',
+  process.env.FRONTEND_URL // esto tomará https://smartorderfrontend.vercel.app
+];
+
 app.use(cors({
-  origin: 'http://localhost:3000', // URL donde corre tu frontend
+  origin: function (origin, callback) {
+    // permitir peticiones sin origin (como curl o postman)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
 }));
 
@@ -27,14 +38,11 @@ app.get('/', (req, res) => {
   res.send('¡SmartOrder backend funcionando!');
 });
 
+// Rutas API
 app.use('/api/products', productRoutes);
-
 app.use('/api/users', userRoutes);
-
-app.use("/api/mesas", mesaRoutes);
-
+app.use('/api/mesas', mesaRoutes);
 app.use('/api/orders', require('./routes/orderRoutes'));
-
 
 // Servidor escuchando
 const PORT = process.env.PORT || 3001;
